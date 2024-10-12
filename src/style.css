@@ -1,5 +1,6 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,86 +12,242 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --vvw: min(1vw, 1vh * 16 / 9);
+  --vvh: min(1vh, 1vw * 9 / 16);
+  font-size: calc(4 * var(--vvh));
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+html,
+body {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  display: grid;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  place-self: center;
+  width: calc(100 * var(--vvw));
+  height: calc(100 * var(--vvh));
+  user-select: none;
+  background-color: black;
+  position: relative;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+#app .page {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-.card {
-  padding: 2em;
+#canvas {
+  width: 100%;
+  height: 100%;
 }
 
-.read-the-docs {
-  color: #888;
+#loading {
+  background-color: black;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+#loading.hide {
+  opacity: 0;
+  transition: opacity 1s linear;
+}
+
+.loading-text-wrapper {
+  position: absolute;
+  left: 2%;
+  bottom: 2%;
+}
+
+#menu {
+  visibility: hidden;
+}
+
+.menu-black {
+  opacity: 0;
+  background-color: black;
+  position: absolute;
+  inset: 0;
+}
+
+.menu-background {
+  opacity: 0;
+  background-image: url(/menu-bg.jpg);
+  background-size: cover;
+  background-position: bottom;
+  position: absolute;
+  inset: 0;
+}
+
+#menu.show {
+  visibility: visible;
+}
+
+#menu.show .menu-black {
+  opacity: 1;
+  transition: opacity 1s ease-in;
+}
+
+#menu.show .menu-background {
+  opacity: 1;
+  background-position: top;
+  transition: opacity 5s ease-in, background-position 5s ease-out;
+  transition-delay: 1s;
+}
+
+#menu.hide {
+  transition: visibility 2s step-end;
+}
+
+#menu.hide .menu-black {
+  transition: opacity 1s ease-in;
+  transition-delay: 1s;
+}
+
+#menu.hide .menu-background {
+  transition: opacity 1s ease-out, background-position 1s step-end;
+}
+
+.menu-right {
+  position: absolute;
+  left: 5%;
+  top: 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  opacity: 0;
+  transform: translateY(1rem);
+  transition: opacity 1s step-end, transform 1s step-end;
+}
+
+#menu.show .menu-right {
+  opacity: 1;
+  transform: none;
+  transition: opacity 1s ease-in, transform 1s ease-out;
+  transition-delay: 5s;
+}
+
+#menu.hide .menu-right {
+  transition: opacity 1s ease-out, transform 1s step-end;
+}
+
+.menu-item {
+  background: none;
+  outline: none;
+  border: none;
+  width: 8rem;
+  text-align: left;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: transform 0.5s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.menu-item:hover {
+  transform: translateX(0.5rem);
+}
+
+.menu-item:disabled {
+  transform: none;
+  opacity: 0.6;
+  cursor: default;
+}
+
+#settings {
+  opacity: 0;
+  visibility: hidden;
+  display: grid;
+  backdrop-filter: brightness(40%) blur(0.2rem);
+}
+
+.settings-wrapper {
+  /* border: 2px solid #66ccff80; */
+  place-self: center;
+  height: 90%;
+  width: 90%;
+}
+
+#settings.show {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease-out, visibility 0.5s step-start;
+}
+
+#settings.hide {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-in, visibility 0.5s step-end;
+}
+
+.settings-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+}
+
+.settings-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#settings input[type="checkbox"] {
+  all: unset;
+  background: transparent;
+  border: 0.1rem solid #fff;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 0.25rem;
+  display: inline-block;
+}
+
+#settings input[type="checkbox"]:checked {
+  background-color: #fff;
+}
+
+#settings input[type="checkbox"]:disabled {
+  opacity: 0.6;
+}
+
+#console {
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+#console.show {
+  opacity: 1;
+}
+
+.console-bottom-panel {
+  position: absolute;
+  height: 33.3%;
+  background-color: #242424;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #0008 0%, #0003 90%, transparent 100%);
+  padding: 0 10%;
+}
+
+.console-title {
+}
+
+.console-text {
+  margin: 0 1.5%;
+  font-size: 0.8rem;
 }
