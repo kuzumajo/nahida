@@ -15,8 +15,7 @@
     "vite": "^5.4.8"
   },
   "dependencies": {
-    "remark-inline-links": "^7.0.0",
-    "remark-parse": "^11.0.0",
-    "unified": "^11.0.5"
+    "remark": "^15.0.1",
+    "remark-inline-links": "^7.0.0"
   }
 }

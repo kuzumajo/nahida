@@ -1,7 +1,5 @@
 import { Plugin } from "vite";
 
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import {
   Heading,
   Image,
@@ -11,6 +9,7 @@ import {
   ThematicBreak,
 } from "mdast";
 import remarkInlineLinks from "remark-inline-links";
+import { remark } from "remark";
 
 function createParseContext() {
   const includes = [] as string[];
@@ -153,7 +152,7 @@ function collectAsStory(ctx: ParseContext) {
 }
 
 function parseStory(markdown: string) {
-  const ast = unified().use(remarkParse).use(remarkInlineLinks).parse(markdown);
+  const ast = remark().use(remarkInlineLinks).parse(markdown);
   const ctx = createParseContext();
   parseStoryContents(ctx, ast.children);
   return collectAsStory(ctx);
