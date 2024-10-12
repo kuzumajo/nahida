@@ -1,4 +1,5 @@
 import { consolePage } from "../elements";
+import { convertToSkippable, Skippable } from "../utils/animations";
 
 const consoleTitle = document.getElementById(
   "console-title"
@@ -7,13 +8,14 @@ const consoleText = document.getElementById("console-text") as HTMLSpanElement;
 const consoleIdle = document.getElementById("console-idle") as HTMLDivElement;
 
 export type ConsoleSystem = {
-  show(): void;
-  hide(): void;
+  show(): Skippable;
+  hide(): Skippable;
   idle(): Promise<void>;
-  wait(timeout: number): Promise<void>;
+  wait(timeout: number): Skippable;
   setTitle(title: string): void;
   setText(text: string): Animation[];
   setIdle(show: boolean): void;
+  text(title: string, text: string): Skippable;
   clean(): void;
 };
 
@@ -31,9 +33,11 @@ export function registerConsoleClicked() {
 export const consoleSystem: ConsoleSystem = {
   show() {
     consolePage.classList.add("show");
+    return convertToSkippable(consolePage.getAnimations());
   },
   hide() {
     consolePage.classList.remove("show");
+    return convertToSkippable(consolePage.getAnimations());
   },
   async idle() {
     this.setIdle(true);
@@ -42,7 +46,16 @@ export const consoleSystem: ConsoleSystem = {
     this.setIdle(false);
   },
   wait(timeout: number) {
-    return new Promise<void>((resolve) => setTimeout(resolve, timeout));
+    let resolved = false;
+    let resolve: () => void;
+    const finished = new Promise<void>((resolve_) => (resolve = resolve_));
+    const finish = () => {
+      if (resolved) return;
+      resolved = true;
+      resolve && resolve();
+    };
+    setTimeout(() => finish(), timeout);
+    return { finished, finish };
   },
   setTitle(title: string) {
     consoleTitle.textContent = title;
@@ -57,6 +70,11 @@ export const consoleSystem: ConsoleSystem = {
       return consoleText.getAnimations();
     }
     return [];
+  },
+  text(title: string, text: string) {
+    this.setTitle(title);
+    const animations = this.setText(text);
+    return convertToSkippable(animations);
   },
   setIdle(show: boolean) {
     if (show) consoleIdle.classList.add("show");

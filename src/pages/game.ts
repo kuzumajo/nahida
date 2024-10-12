@@ -1,6 +1,6 @@
 import { chapters } from "../story";
 import { consoleSystem, ConsoleSystem } from "../system/console";
-import { convertToSkippable, Skippable, waitOrSkip } from "../utils/animations";
+import { waitOrSkip } from "../utils/animations";
 import { GameSave } from "../utils/saves";
 import { showMenu } from "./menu";
 
@@ -8,7 +8,6 @@ export type GameContext = {
   console: ConsoleSystem;
   data: any;
   chapter: string;
-  text(title: string, text: string): Skippable;
 };
 
 function createGameContext(save?: GameSave): GameContext {
@@ -16,15 +15,11 @@ function createGameContext(save?: GameSave): GameContext {
     console: consoleSystem,
     data: save?.data ?? {},
     chapter: save?.chapter ?? "start",
-    text(title: string, text: string) {
-      this.console.setTitle(title);
-      const animations = this.console.setText(text);
-      return convertToSkippable(animations);
-    },
   };
 }
 
 export async function startGame(ctx: GameContext) {
+  ctx.console.clean();
   const story = getChapter(ctx.chapter).story;
   let generator = story(ctx);
   while (true) {

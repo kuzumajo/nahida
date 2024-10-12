@@ -249,24 +249,43 @@ body {
   margin: 0 10%;
 }
 
+#console-title {
+  display: inline-block;
+}
+
 .console-text {
   margin: 0 12.5%;
   font-size: 0.8rem;
 }
 
 .console-idle {
-  width: 1rem;
-  height: 1rem;
-  background-color: aqua;
+  position: absolute;
+  right: 10%;
+  bottom: 1rem;
+  width: 0;
+  height: 0;
+  border-left: 0.25rem solid transparent;
+  border-right: 0.25rem solid transparent;
+  border-top: 0.45rem solid aqua;
+  animation: bounce 1s ease-in-out infinite alternate;
   pointer-events: none;
   opacity: 0;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0.1rem);
+  }
+  to {
+    transform: translateY(-0.1rem);
+  }
 }
 
 .console-idle.show {
   opacity: 1;
 }
 
-span#console-text {
+#console-text {
   color: transparent;
   background: linear-gradient(white 0 0),
     linear-gradient(to right, white, transparent);

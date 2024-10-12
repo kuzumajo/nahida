@@ -2,7 +2,7 @@ import { Plugin } from "vite";
 
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import { Heading, Paragraph, RootContent } from "mdast";
+import { Heading, Image, Paragraph, RootContent, ThematicBreak } from "mdast";
 
 function createParseContext() {
   const includes = [] as string[];
@@ -40,14 +40,44 @@ function createParseContext() {
 
 type ParseContext = ReturnType<typeof createParseContext>;
 
+async function parseStoryImage(ctx: ParseContext, image: Image) {
+  // ![alt](src "title")
+  const alt = image.alt || "";
+  const src = image.url;
+  const title = image.title || "";
+
+  if (alt === "c") {
+    if (src === "#wait") {
+      if (!title) throw new TypeError("#wait must have one param");
+      ctx.yield(`ctx.console.wait(${title})`);
+    } else if (src === "#show") {
+      ctx.yield(`ctx.console.show()`);
+    } else if (src === "#hide") {
+      ctx.yield(`ctx.console.hide()`);
+    } else {
+      throw new Error(`Unknown console command: ${src}`);
+    }
+  } else {
+    throw new Error(`Unknown command: ${alt}`);
+  }
+}
 async function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
-  if (
-    paragraph.children.length === 1 &&
-    paragraph.children[0].type === "text"
-  ) {
-    const title = ctx.title;
-    const text = paragraph.children[0].value;
-    ctx.yield(`ctx.text(${JSON.stringify(title)}, ${JSON.stringify(text)})`);
+  let text = "";
+  for (const child of paragraph.children) {
+    if (child.type === "text") {
+      text += child.value;
+      continue;
+    }
+    if (child.type === "image") {
+      parseStoryImage(ctx, child);
+      continue;
+    }
+  }
+  text = text.trim();
+  if (text) {
+    ctx.yield(
+      `ctx.console.text(${JSON.stringify(ctx.title)}, ${JSON.stringify(text)})`
+    );
     ctx.yield(`ctx.console.idle()`);
   }
 }
@@ -58,7 +88,12 @@ async function parseStoryHeading(ctx: ParseContext, heading: Heading) {
     throw new Error("Invalid heading");
   }
 }
-
+async function parseStoryThematicBreak(
+  ctx: ParseContext,
+  _thematicBreak: ThematicBreak
+) {
+  ctx.title = "";
+}
 async function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
   for (const content of contents) {
     if (content.type === "paragraph") {
@@ -67,6 +102,10 @@ async function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
     }
     if (content.type === "heading") {
       parseStoryHeading(ctx, content);
+      continue;
+    }
+    if (content.type === "thematicBreak") {
+      parseStoryThematicBreak(ctx, content);
       continue;
     }
   }

@@ -19,30 +19,24 @@ export function showMenu() {
   continueButton.disabled = !hasSave("auto");
   menuPage.classList.remove("hide");
   menuPage.classList.add("show");
-
   return wait(6000);
 }
 
 export function hideMenu() {
   menuPage.classList.remove("show");
   menuPage.classList.add("hide");
-
   return wait(2000);
 }
 
 continueButton.addEventListener("click", () => {
   const auto = loadSave("auto");
-  consoleSystem.clean();
-  hideMenu().then(() => {
-    startGameFromSave(auto);
-  });
+  hideMenu();
+  startGameFromSave(auto);
 });
 
 newButton.addEventListener("click", () => {
-  consoleSystem.clean();
-  hideMenu().then(() => {
-    startNewGame();
-  });
+  hideMenu();
+  startNewGame();
 });
 
 settingsButton.addEventListener("click", () => {
