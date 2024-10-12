@@ -16,7 +16,6 @@ export type ConsoleSystem = {
   setText(text: string): Animation[];
   setIdle(show: boolean): void;
   text(title: string, text: string): Skippable;
-  clean(): void;
 };
 
 export function registerConsoleClicked() {
@@ -32,6 +31,8 @@ export function registerConsoleClicked() {
 
 export const consoleSystem: ConsoleSystem = {
   show() {
+    this.setTitle("");
+    this.setText("");
     consolePage.classList.add("show");
     return convertToSkippable(consolePage.getAnimations());
   },
@@ -79,11 +80,6 @@ export const consoleSystem: ConsoleSystem = {
   setIdle(show: boolean) {
     if (show) consoleIdle.classList.add("show");
     else consoleIdle.classList.remove("show");
-  },
-  clean() {
-    this.setTitle("");
-    this.setText("");
-    this.hide();
   },
 };
 

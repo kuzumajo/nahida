@@ -3,7 +3,6 @@ import { startGameFromSave, startNewGame } from "./game";
 import { hasSave, loadSave } from "../utils/saves";
 import { showSettings } from "./settings";
 import { wait } from "../utils/animations";
-import { consoleSystem } from "../system/console";
 
 const continueButton = document.getElementById(
   "menu-continue"
