@@ -8,8 +8,8 @@ import {
   RootContent,
   ThematicBreak,
 } from "mdast";
-import remarkInlineLinks from "remark-inline-links";
 import { remark } from "remark";
+import remarkInlineLinks from "remark-inline-links";
 
 function createParseContext() {
   const includes = [] as string[];
@@ -65,7 +65,8 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       throw new Error(`Unknown console command: ${src}`);
     }
   } else if (alt.startsWith("bgm")) {
-    ctx.code(`ctx.audio.playBgm(${JSON.stringify(src)});`);
+    const audio = ctx.include(src + "?url");
+    ctx.code(`ctx.audio.playBgm(${audio});`);
   } else if (alt.startsWith("bg")) {
     // const attrs = alt.split(/\s+/).slice(1);
     // TODO
@@ -80,7 +81,8 @@ function parseStoryLink(ctx: ParseContext, link: Link) {
     .join("");
   const src = link.url;
   if (alt === "next") {
-    ctx.code(`return ${JSON.stringify(src)};`);
+    if (!src.startsWith("#")) throw new TypeError("Next chapter must use hash");
+    ctx.code(`return ${JSON.stringify(src.slice(1))};`);
   } else if (alt === "jump") {
     const jump = ctx.include(src);
     ctx.code(`yield *${jump}(ctx);`);
@@ -151,8 +153,9 @@ function collectAsStory(ctx: ParseContext) {
   ].join("\n");
 }
 
-function parseStory(markdown: string) {
-  const ast = remark().use(remarkInlineLinks).parse(markdown);
+async function parseStory(markdown: string) {
+  const vfile = await remark().use(remarkInlineLinks).process(markdown);
+  const ast = remark().parse(vfile);
   const ctx = createParseContext();
   parseStoryContents(ctx, ast.children);
   return collectAsStory(ctx);
@@ -161,9 +164,9 @@ function parseStory(markdown: string) {
 export default function markdownStory(): Plugin {
   return {
     name: "markdown-story",
-    transform(code, id) {
+    async transform(code, id) {
       if (/\.md$/.test(id)) {
-        return parseStory(code);
+        return await parseStory(code);
       }
     },
   };
