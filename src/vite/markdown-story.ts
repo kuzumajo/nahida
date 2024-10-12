@@ -47,7 +47,7 @@ function createParseContext() {
 
 type ParseContext = ReturnType<typeof createParseContext>;
 
-async function parseStoryImage(ctx: ParseContext, image: Image) {
+function parseStoryImage(ctx: ParseContext, image: Image) {
   // ![alt](src "title")
   const alt = image.alt || "";
   const src = image.url;
@@ -73,7 +73,7 @@ async function parseStoryImage(ctx: ParseContext, image: Image) {
     throw new Error(`Unknown command: ${alt}`);
   }
 }
-async function parseStoryLink(ctx: ParseContext, link: Link) {
+function parseStoryLink(ctx: ParseContext, link: Link) {
   const alt = link.children
     .filter((x) => x.type === "text")
     .map((x) => x.value)
@@ -88,7 +88,7 @@ async function parseStoryLink(ctx: ParseContext, link: Link) {
     throw new Error(`Unknown jump command: ${alt}`);
   }
 }
-async function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
+function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
   let text = "";
   for (const child of paragraph.children) {
     if (child.type === "text") {
@@ -112,20 +112,20 @@ async function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
     ctx.yield(`ctx.console.idle()`);
   }
 }
-async function parseStoryHeading(ctx: ParseContext, heading: Heading) {
+function parseStoryHeading(ctx: ParseContext, heading: Heading) {
   if (heading.children.length === 1 && heading.children[0].type === "text") {
     ctx.title = heading.children[0].value;
   } else {
     throw new Error("Invalid heading");
   }
 }
-async function parseStoryThematicBreak(
+function parseStoryThematicBreak(
   ctx: ParseContext,
   _thematicBreak: ThematicBreak
 ) {
   ctx.title = "";
 }
-async function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
+function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
   for (const content of contents) {
     if (content.type === "paragraph") {
       parseStoryParagraph(ctx, content);
@@ -142,7 +142,7 @@ async function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
   }
 }
 
-async function collectAsStory(ctx: ParseContext) {
+function collectAsStory(ctx: ParseContext) {
   return [
     ...ctx.includes(),
     `export default async function* (ctx) {`,

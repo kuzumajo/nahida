@@ -83,7 +83,7 @@ requestAnimationFrame(function animate() {
       ? 1
       : Math.min(1, (now - animation.startTime) / animation.duration);
     animation.callback(current);
-    if (current == 1) shouldRemove.push(animation);
+    if (current === 1) shouldRemove.push(animation);
   }
 
   for (const remove of shouldRemove) {
