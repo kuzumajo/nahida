@@ -11,6 +11,8 @@ import {
 import { remark } from "remark";
 import remarkInlineLinks from "remark-inline-links";
 
+const s = JSON.stringify;
+
 function createParseContext() {
   const includes = [] as string[];
   const codes = [] as string[];
@@ -68,8 +70,10 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
     const audio = ctx.include(src + "?url");
     ctx.code(`ctx.audio.playBgm(${audio});`);
   } else if (alt.startsWith("bg")) {
-    // const attrs = alt.split(/\s+/).slice(1);
-    // TODO
+    const animates = alt.split(/\s+/).slice(1).join(" ");
+    const transitions = title.split(/\s+/).join(" ");
+    const image = ctx.include(`${src}?url`);
+    ctx.yield(`ctx.bg.change(${image}, ${s(animates)}, ${s(transitions)})`);
   } else {
     throw new Error(`Unknown command: ${alt}`);
   }

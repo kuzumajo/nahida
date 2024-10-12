@@ -1,19 +1,34 @@
-import { backgroundPage as div } from "../elements";
+import { backgroundPage } from "../elements";
 import {
   convertToSkippable,
   createAnimation,
   Skippable,
 } from "../utils/animations";
 
-export const bg = {
+export const bgSystem = {
+  stack: [] as { src: string; div: HTMLDivElement }[],
   change(src: string, animates: string, transitions: string) {
-    div.style.backgroundImage = `url(${src})`;
-    animateImage(div, transitions);
-    return convertToSkippable(animateBackground(div, animates));
+    if (
+      this.stack.length === 0 ||
+      this.stack[this.stack.length - 1].src !== src
+    ) {
+      const div = document.createElement("div");
+      div.style.position = "absolute";
+      div.style.inset = "0";
+      backgroundPage.append(div);
+      div.style.backgroundImage = `url(${src})`;
+      animateImage(div, transitions);
+      const skippable = convertToSkippable(animateBackground(div, animates));
+      this.stack.push({ src, div });
+      return skippable;
+    } else {
+      const div = this.stack[this.stack.length - 1].div;
+      return convertToSkippable(animateBackground(div, animates));
+    }
   },
 };
 
-export type BackgroundSystem = typeof bg;
+export type BackgroundSystem = typeof bgSystem;
 
 function parseAnimation(animation: string, duration: number) {
   const animations = animation

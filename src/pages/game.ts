@@ -1,5 +1,6 @@
 import { chapters } from "../story";
 import { AudioSystem, audioSystem } from "../system/audio";
+import { BackgroundSystem, bgSystem } from "../system/canvas";
 import { consoleSystem, ConsoleSystem } from "../system/console";
 import { waitOrSkip } from "../utils/animations";
 import { GameSave } from "../utils/saves";
@@ -8,6 +9,7 @@ import { showMenu } from "./menu";
 export type GameContext = {
   console: ConsoleSystem;
   audio: AudioSystem;
+  bg: BackgroundSystem;
   data: any;
   chapter: string;
 };
@@ -16,6 +18,7 @@ function createGameContext(save?: GameSave): GameContext {
   return {
     console: consoleSystem,
     audio: audioSystem,
+    bg: bgSystem,
     data: save?.data ?? {},
     chapter: save?.chapter ?? "start",
   };
