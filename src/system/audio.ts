@@ -1,4 +1,4 @@
-const bgm = new Audio();
+let bgm = new Audio();
 
 export const audioSystem = {
   playBgm(src: string) {
@@ -6,8 +6,9 @@ export const audioSystem = {
       return;
     }
     bgm.pause();
+    bgm = new Audio();
     bgm.src = src;
-    bgm.addEventListener("canplay", () => bgm.play(), { once: true });
+    bgm.oncanplay = () => bgm.play();
   },
 };
 
