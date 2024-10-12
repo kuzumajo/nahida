@@ -55,12 +55,12 @@ export function createAnimation(
 }
 
 export async function waitOrSkip(skippable: Skippable) {
-  const { clicked, ctrl } = registerConsoleClicked();
+  const { clicked, abort } = registerConsoleClicked();
 
   try {
     await Promise.race([skippable.finished, clicked]);
   } finally {
-    ctrl.abort();
+    abort();
     skippable.finish();
   }
 }

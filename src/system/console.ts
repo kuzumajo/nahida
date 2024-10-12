@@ -7,16 +7,22 @@ const consoleTitle = document.getElementById(
 const consoleText = document.getElementById("console-text") as HTMLSpanElement;
 const consoleIdle = document.getElementById("console-idle") as HTMLDivElement;
 
+const clickCallbacks = new Set<() => void>();
+
 export function registerConsoleClicked() {
   let resolve: () => void;
+  const callback = () => {
+    clickCallbacks.delete(callback);
+    resolve && resolve();
+  };
   const clicked = new Promise<void>((resolve_) => (resolve = resolve_));
-  const ctrl = new AbortController();
-  consolePage.addEventListener("click", () => resolve && resolve(), {
-    signal: ctrl.signal,
-    once: true,
-  });
-  return { clicked, ctrl };
+  clickCallbacks.add(callback);
+  return { clicked, abort: () => clickCallbacks.delete(callback) };
 }
+
+consolePage.addEventListener("click", () => {
+  for (const callback of clickCallbacks) callback();
+});
 
 export const consoleSystem = {
   show() {
