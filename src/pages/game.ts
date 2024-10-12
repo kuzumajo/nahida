@@ -25,6 +25,10 @@ function createGameContext(save?: GameSave): GameContext {
 }
 
 export async function startGame(ctx: GameContext) {
+  ctx.audio.clean();
+  ctx.bg.clean();
+  ctx.console.clean();
+
   const story = getChapter(ctx.chapter).story;
   let generator = story(ctx);
   while (true) {

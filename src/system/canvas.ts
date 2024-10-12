@@ -7,6 +7,9 @@ import {
 
 export const bgSystem = {
   stack: [] as { src: string; div: HTMLDivElement }[],
+  clean() {
+    while (this.stack.length > 0) this.stack.shift()!.div.remove();
+  },
   change(src: string, animates: string, transitions: string) {
     while (this.stack.length > 1) this.stack.shift()!.div.remove();
 

@@ -75,6 +75,11 @@ export const consoleSystem = {
     await registerConsoleClicked().clicked;
     this.setIdle(false);
   },
+  clean() {
+    this.setText("");
+    this.setTitle("");
+    this.hide();
+  },
 };
 
 export type ConsoleSystem = typeof consoleSystem;
