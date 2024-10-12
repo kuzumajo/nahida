@@ -254,7 +254,7 @@ body {
 }
 
 .console-text {
-  margin: 0 12.5%;
+  margin: 0 10.75%;
   font-size: 0.8rem;
 }
 
@@ -270,6 +270,7 @@ body {
   animation: bounce 1s ease-in-out infinite alternate;
   pointer-events: none;
   opacity: 0;
+  transition: opacity 0.2s;
 }
 
 @keyframes bounce {
