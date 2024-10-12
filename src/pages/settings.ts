@@ -29,7 +29,7 @@ settingsPage.addEventListener("mousedown", (e) => {
   }
 });
 
-fullscreenCheckbox.addEventListener("change", (e) => {
+fullscreenCheckbox.addEventListener("change", () => {
   if (fullscreenCheckbox.checked) {
     requestFullscreen();
   } else {

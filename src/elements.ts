@@ -9,7 +9,3 @@ export const menuPage = document.getElementById("menu") as HTMLDivElement;
 export const settingsPage = document.getElementById(
   "settings"
 ) as HTMLDivElement;
-
-export const loadingText = document.getElementById(
-  "loading-text"
-) as HTMLSpanElement;

@@ -4,6 +4,7 @@ import "./style.css";
 
 addEventListener("contextmenu", (e) => e.preventDefault());
 
-await loadResources();
-hideLoading();
-showMenu();
+loadResources().then(() => {
+  hideLoading();
+  showMenu();
+});

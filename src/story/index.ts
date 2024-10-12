@@ -1,18 +1,6 @@
-import { GameContext } from "../pages/game";
-import prologue from "./entry.md";
-
-export type Story = (
-  ctx: GameContext
-) => AsyncGenerator<string, Story | void, void>;
-
-export type Chapter = {
-  name: string;
-  story: Story;
-};
+import { Chapter } from "../utils/story";
+import prologue from "./prologue.md";
 
 export const chapters: Record<string, Chapter> = {
-  start: {
-    name: "序章",
-    story: prologue,
-  },
+  start: { name: "序章", story: prologue },
 };

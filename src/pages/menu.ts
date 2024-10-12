@@ -1,7 +1,9 @@
 import { menuPage } from "../elements";
 import { startGameFromSave, startNewGame } from "./game";
-import { hasSave, loadSave } from "./saves";
+import { hasSave, loadSave } from "../utils/saves";
 import { showSettings } from "./settings";
+import { wait } from "../utils/animations";
+import { consoleSystem } from "../system/console";
 
 const continueButton = document.getElementById(
   "menu-continue"
@@ -17,24 +19,30 @@ export function showMenu() {
   continueButton.disabled = !hasSave("auto");
   menuPage.classList.remove("hide");
   menuPage.classList.add("show");
+
+  return wait(6000);
 }
 
 export function hideMenu() {
   menuPage.classList.remove("show");
   menuPage.classList.add("hide");
 
-  setTimeout(() => showMenu(), 5000);
+  return wait(2000);
 }
 
 continueButton.addEventListener("click", () => {
   const auto = loadSave("auto");
-  hideMenu();
-  startGameFromSave(auto);
+  consoleSystem.clean();
+  hideMenu().then(() => {
+    startGameFromSave(auto);
+  });
 });
 
 newButton.addEventListener("click", () => {
-  hideMenu();
-  startNewGame();
+  consoleSystem.clean();
+  hideMenu().then(() => {
+    startNewGame();
+  });
 });
 
 settingsButton.addEventListener("click", () => {

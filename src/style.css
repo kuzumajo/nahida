@@ -58,8 +58,8 @@ body {
 }
 
 #loading.hide {
-  opacity: 0;
-  transition: opacity 1s linear;
+  visibility: hidden;
+  transition: visibility 1s step-end;
 }
 
 .loading-text-wrapper {
@@ -106,6 +106,7 @@ body {
 
 #menu.hide {
   transition: visibility 2s step-end;
+  pointer-events: none;
 }
 
 #menu.hide .menu-black {
@@ -119,8 +120,8 @@ body {
 
 .menu-right {
   position: absolute;
-  left: 5%;
-  top: 45%;
+  right: 5%;
+  top: 40%;
   display: flex;
   flex-direction: column;
   align-items: end;
@@ -145,7 +146,7 @@ body {
   outline: none;
   border: none;
   width: 8rem;
-  text-align: left;
+  text-align: right;
   font-size: 1rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
@@ -153,7 +154,7 @@ body {
 }
 
 .menu-item:hover {
-  transform: translateX(0.5rem);
+  transform: translateX(-0.5rem);
 }
 
 .menu-item:disabled {
@@ -166,7 +167,8 @@ body {
   opacity: 0;
   visibility: hidden;
   display: grid;
-  backdrop-filter: brightness(40%) blur(0.2rem);
+  background-color: #0008;
+  backdrop-filter: blur(0.2rem);
 }
 
 .settings-wrapper {
@@ -241,13 +243,44 @@ body {
   left: 0;
   right: 0;
   background: linear-gradient(to top, #0008 0%, #0003 90%, transparent 100%);
-  padding: 0 10%;
 }
 
 .console-title {
+  margin: 0 10%;
 }
 
 .console-text {
-  margin: 0 1.5%;
+  margin: 0 12.5%;
   font-size: 0.8rem;
+}
+
+.console-idle {
+  width: 1rem;
+  height: 1rem;
+  background-color: aqua;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.console-idle.show {
+  opacity: 1;
+}
+
+span#console-text {
+  color: transparent;
+  background: linear-gradient(white 0 0),
+    linear-gradient(to right, white, transparent);
+  background-size: 0 100%, 3rem 100%;
+  background-position: 0 0, 0 0;
+  background-repeat: no-repeat;
+  animation: text-show-up 1s linear forwards;
+
+  background-clip: text;
+}
+
+@keyframes text-show-up {
+  to {
+    background-size: 100% 100%, 3rem 100%;
+    background-position: 0 0, calc(100% + 3rem) 0;
+  }
 }
