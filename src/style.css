@@ -228,7 +228,7 @@ body {
 
 #console {
   opacity: 0;
-  transition: opacity 1s;
+  transition: opacity 0.5s;
 }
 
 #console.show {

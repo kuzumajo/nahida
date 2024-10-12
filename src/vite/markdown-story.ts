@@ -60,9 +60,9 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       if (!title) throw new TypeError("#wait must have one param");
       ctx.yield(`ctx.console.wait(${+title})`);
     } else if (src === "#show") {
-      ctx.yield(`ctx.console.show()`);
+      ctx.code(`ctx.console.show();`);
     } else if (src === "#hide") {
-      ctx.yield(`ctx.console.hide()`);
+      ctx.code(`ctx.console.hide();`);
     } else {
       throw new Error(`Unknown console command: ${src}`);
     }
