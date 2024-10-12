@@ -7,17 +7,6 @@ const consoleTitle = document.getElementById(
 const consoleText = document.getElementById("console-text") as HTMLSpanElement;
 const consoleIdle = document.getElementById("console-idle") as HTMLDivElement;
 
-export type ConsoleSystem = {
-  show(): Skippable;
-  hide(): Skippable;
-  idle(): Promise<void>;
-  wait(timeout: number): Skippable;
-  setTitle(title: string): void;
-  setText(text: string): Animation[];
-  setIdle(show: boolean): void;
-  text(title: string, text: string): Skippable;
-};
-
 export function registerConsoleClicked() {
   let resolve: () => void;
   const clicked = new Promise<void>((resolve_) => (resolve = resolve_));
@@ -29,7 +18,7 @@ export function registerConsoleClicked() {
   return { clicked, ctrl };
 }
 
-export const consoleSystem: ConsoleSystem = {
+export const consoleSystem = {
   show() {
     this.setTitle("");
     this.setText("");
@@ -40,13 +29,7 @@ export const consoleSystem: ConsoleSystem = {
     consolePage.classList.remove("show");
     return convertToSkippable(consolePage.getAnimations());
   },
-  async idle() {
-    this.setIdle(true);
-    const { clicked } = registerConsoleClicked();
-    await clicked;
-    this.setIdle(false);
-  },
-  wait(timeout: number) {
+  wait(timeout: number): Skippable {
     let resolved = false;
     let resolve: () => void;
     const finished = new Promise<void>((resolve_) => (resolve = resolve_));
@@ -81,7 +64,14 @@ export const consoleSystem: ConsoleSystem = {
     if (show) consoleIdle.classList.add("show");
     else consoleIdle.classList.remove("show");
   },
+  async idle() {
+    this.setIdle(true);
+    await registerConsoleClicked().clicked;
+    this.setIdle(false);
+  },
 };
+
+export type ConsoleSystem = typeof consoleSystem;
 
 export function prepareConsole() {
   consoleSystem.setTitle("");

@@ -2,7 +2,14 @@ import { Plugin } from "vite";
 
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import { Heading, Image, Paragraph, RootContent, ThematicBreak } from "mdast";
+import {
+  Heading,
+  Image,
+  Link,
+  Paragraph,
+  RootContent,
+  ThematicBreak,
+} from "mdast";
 
 function createParseContext() {
   const includes = [] as string[];
@@ -49,7 +56,7 @@ async function parseStoryImage(ctx: ParseContext, image: Image) {
   if (alt === "c") {
     if (src === "#wait") {
       if (!title) throw new TypeError("#wait must have one param");
-      ctx.yield(`ctx.console.wait(${title})`);
+      ctx.yield(`ctx.console.wait(${+title})`);
     } else if (src === "#show") {
       ctx.yield(`ctx.console.show()`);
     } else if (src === "#hide") {
@@ -57,8 +64,28 @@ async function parseStoryImage(ctx: ParseContext, image: Image) {
     } else {
       throw new Error(`Unknown console command: ${src}`);
     }
+  } else if (alt.startsWith("bgm")) {
+    ctx.code(`ctx.audio.playBgm(${JSON.stringify(src)});`);
+  } else if (alt.startsWith("bg")) {
+    // const attrs = alt.split(/\s+/).slice(1);
+    // TODO
   } else {
     throw new Error(`Unknown command: ${alt}`);
+  }
+}
+async function parseStoryLink(ctx: ParseContext, link: Link) {
+  const alt = link.children
+    .filter((x) => x.type === "text")
+    .map((x) => x.value)
+    .join("");
+  const src = link.url;
+  if (alt === "next") {
+    ctx.code(`return ${JSON.stringify(src)};`);
+  } else if (alt === "jump") {
+    const jump = ctx.include(src);
+    ctx.code(`yield *${jump}(ctx);`);
+  } else {
+    throw new Error(`Unknown jump command: ${alt}`);
   }
 }
 async function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
@@ -70,6 +97,10 @@ async function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
     }
     if (child.type === "image") {
       parseStoryImage(ctx, child);
+      continue;
+    }
+    if (child.type === "link") {
+      parseStoryLink(ctx, child);
       continue;
     }
   }
