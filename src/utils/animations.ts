@@ -5,7 +5,9 @@ export type Skippable = {
   finish(): void;
 };
 
-export function convertToSkippable(animations: Animation[]): Skippable {
+export function convertToSkippable(
+  animations: (Animation | Skippable)[]
+): Skippable {
   return {
     finished: Promise.all(
       animations.map((x) => x.finished)
@@ -18,7 +20,6 @@ export function convertToSkippable(animations: Animation[]): Skippable {
 
 type CurrentAnimation = {
   skip: boolean;
-  timing: (x: number) => number;
   duration: number;
   startTime: number;
   callback: (x: number) => void;
@@ -29,10 +30,7 @@ const animations = new Set<CurrentAnimation>();
 
 export function createAnimation(
   callback: (x: number) => void,
-  options: {
-    timing: (x: number) => number;
-    duration: number;
-  }
+  duration: number
 ): Skippable {
   let resolve: () => void;
   const finished = new Promise<void>((resolve_) => (resolve = resolve_));
@@ -40,8 +38,7 @@ export function createAnimation(
   const animation: CurrentAnimation = {
     skip: false,
     callback,
-    timing: options.timing,
-    duration: options.duration,
+    duration: duration,
     startTime: Date.now(),
     onfinish() {
       resolve && resolve();
