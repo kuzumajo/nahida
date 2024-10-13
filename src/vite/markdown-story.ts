@@ -66,10 +66,10 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
     } else {
       throw new Error(`Unknown console command: ${src}`);
     }
-  } else if (alt.startsWith("bgm")) {
-    const audio = ctx.include(src + "?url");
+  } else if (alt.startsWith("m")) {
+    const audio = ctx.include(`${src}?url`);
     ctx.code(`ctx.audio.playBgm(${audio});`);
-  } else if (alt.startsWith("bg")) {
+  } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
     const image = ctx.include(`${src}?url`);
