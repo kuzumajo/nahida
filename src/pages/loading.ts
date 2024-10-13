@@ -1,4 +1,5 @@
 import { loadingPage } from "../elements";
+import { wait } from "../utils/animations";
 
 const loadingText = document.getElementById("loading-text") as HTMLSpanElement;
 
@@ -7,28 +8,31 @@ type LoadingTask = {
   src: string;
 };
 
-const loadingTasks: LoadingTask[] = [{ type: "image", src: "/menu-bg.jpg" }];
-let finished = 0;
-
-function updateLoadingText() {
-  loadingText.textContent = `(${finished}/${loadingTasks.length})`;
+function updateLoadingText(now: number, total: number) {
+  loadingText.textContent = `(${now}/${total})`;
 }
 
-export async function loadResources() {
+export function showLoading() {
+  loadingPage.classList.remove("hide");
+}
+
+export function hideLoading() {
+  loadingPage.classList.add("hide");
+}
+
+export async function preloadResources(tasks: LoadingTask[]) {
+  let finished = 0;
+
   await Promise.all(
-    loadingTasks.map(async (x) => {
-      if (!x.src) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, Math.random() * 1000 + 1000)
-        );
-      } else if (x.type === "image") {
+    tasks.map(async (x) => {
+      if (x.type === "image") {
         await new Promise<void>((resolve, reject) => {
           const image = new Image();
           image.src = x.src;
           image.onload = () => resolve();
           image.onerror = (e) => reject(e);
         });
-      } else {
+      } else if (x.type === "audio") {
         await new Promise<void>((resolve, reject) => {
           const audio = new Audio();
           audio.src = x.src;
@@ -36,12 +40,32 @@ export async function loadResources() {
           audio.onerror = (e) => reject(e);
         });
       }
-      finished++;
-      updateLoadingText();
+      updateLoadingText(++finished, tasks.length);
     })
   );
+  await wait(1000);
+
+  hideLoading();
 }
 
-export function hideLoading() {
-  loadingPage.classList.add("hide");
+export async function manuallyLoadResources(resources: string[]) {
+  showLoading();
+  let finished = 0;
+  updateLoadingText(finished, resources.length);
+  const results = await Promise.all(
+    resources.map(async (url) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      updateLoadingText(++finished, resources.length);
+      return URL.createObjectURL(blob);
+    })
+  );
+  hideLoading();
+  return results;
+}
+
+export async function revokeResources(urls: string[]) {
+  for (const url of urls) {
+    URL.revokeObjectURL(url);
+  }
 }

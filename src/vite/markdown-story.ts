@@ -16,21 +16,33 @@ const s = JSON.stringify;
 function createParseContext() {
   const includes = [] as string[];
   const codes = [] as string[];
-  const preloads = [] as string[];
+  const resources = [] as string[];
 
   const importMap = new Map<string, string>();
+  const resourceMap = new Map<string, string>();
 
   return {
     title: "",
     vocal: "",
 
-    include(source: string, type?: "audio" | "image") {
-      if (importMap.has(source)) return importMap.get(source)!;
+    include(source: string) {
+      if (importMap.has(source)) {
+        return importMap.get(source)!;
+      }
       const id = `story_${includes.length}`;
       includes.push(source);
-      if (type === "audio") this.preload(id, "audio");
-      else if (type === "image") this.preload(id, "image");
       importMap.set(source, id);
+      return id;
+    },
+
+    resource(source: string) {
+      if (resourceMap.has(source)) {
+        return resourceMap.get(source)!;
+      }
+      const item = this.include(source);
+      const id = `item[${resources.length}]`;
+      resources.push(item);
+      resourceMap.set(source, id);
       return id;
     },
 
@@ -42,12 +54,15 @@ function createParseContext() {
       codes.push(code);
     },
 
-    preload(source: string, as: string) {
-      preloads.push(`ctx.preload(${source}, ${s(as)});`);
-    },
-
     codes() {
-      return [...preloads, ...codes];
+      if (resources.length > 0) {
+        return [
+          `const item = await ctx.load([${resources.join(", ")}]);`,
+          ...codes,
+        ];
+      } else {
+        return codes;
+      }
     },
 
     includes() {
@@ -78,17 +93,15 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       throw new Error(`Unknown console command: ${src}`);
     }
   } else if (alt.startsWith("m")) {
-    const audio = ctx.include(`${src}?url`, "audio");
+    const audio = ctx.resource(`${src}?url`);
     ctx.code(`ctx.audio.playBgm(${audio});`);
   } else if (alt.startsWith("v")) {
     if (ctx.vocal) throw new TypeError("Too many vocal binded to text");
-    ctx.vocal = ctx.include(`${src}?url`, "audio");
+    ctx.vocal = ctx.resource(`${src}?url`);
   } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
-    const image = src.startsWith("#")
-      ? s(src)
-      : ctx.include(`${src}?url`, "image");
+    const image = src.startsWith("#") ? s(src) : ctx.resource(`${src}?url`);
     ctx.yield(`ctx.bg.change(${image}, ${s(animates)}, ${s(transitions)})`);
   } else {
     throw new Error(`Unknown command: ${alt}`);
@@ -170,7 +183,6 @@ function collectAsStory(ctx: ParseContext) {
   return [
     ...ctx.includes(),
     `export default async function* (ctx) {`,
-    `var tmp;`,
     ...ctx.codes(),
     `}`,
   ].join("\n");

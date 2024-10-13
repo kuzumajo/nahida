@@ -4,6 +4,7 @@ import { BackgroundSystem, bgSystem } from "../system/canvas";
 import { consoleSystem, ConsoleSystem } from "../system/console";
 import { convertToSkippable, Skippable, waitOrSkip } from "../utils/animations";
 import { GameSave } from "../utils/saves";
+import { manuallyLoadResources } from "./loading";
 import { showMenu } from "./menu";
 
 export type GameContext = {
@@ -13,7 +14,7 @@ export type GameContext = {
   data: any;
   chapter: string;
   merge(...skippables: Skippable[]): Skippable;
-  preload(source: string, type: "image" | "audio"): void;
+  load(sources: string[]): Promise<string[]>;
 };
 
 function createGameContext(save?: GameSave): GameContext {
@@ -26,14 +27,8 @@ function createGameContext(save?: GameSave): GameContext {
     merge(...skippables) {
       return convertToSkippable(skippables);
     },
-    preload(source: string, type: "image" | "audio") {
-      if (type === "image") {
-        const img = new Image();
-        img.src = source;
-      } else if (type === "audio") {
-        const audio = new Audio();
-        audio.src = source;
-      }
+    async load(sources: string[]) {
+      return await manuallyLoadResources(sources);
     },
   };
 }
