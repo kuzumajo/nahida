@@ -52,23 +52,33 @@
 
 背景控制
 
-`![b <animations>](<image> "<transitions>")`
+`![b <animations>](<image> "<transitions> | <size> | <position>")`
 
 <!-- prettier-ignore -->
 ```markdown
+<!-- 使用 文件 URL 或者颜色 hash -->
+![b](./bg.png)
+![b](#66ccff)
+
+<!-- 添加入场动画 -->
+![b fade](./bg.png)
+![b conic](./bg.png)
+![b blinds](./bg.png)
+![b fade duration-2000 ease-in-out](./bg.png)
+
+<!-- size -->
 ![b](./bg.png "cover")
 ![b](./bg.png "contain")
 ![b](./bg.png "fill")
-![b fade-in](./bg.png "cover")
-![b fade-out](./bg.png "cover")
-![b conic-in](./bg.png "cover")
-![b conic-out](./bg.png "cover")
-![b blinds-in](./bg.png "cover")
-![b blinds-out](./bg.png "cover")
-![b](./bg.png "cover top to-bottom")
-![b](./bg.png "cover right to-left")
+![b](./bg.png "80%")
+![b](./bg.png "cover to-contain duration-60000 ease-in-out")
 
-![b fade-in duration-3000 ease-out](./bg.png "cover top to-bottom duration-3000 ease-in-out")
+<!-- position -->
+<!-- 注意百分比前面要加一个斜杠（以免和 size 混淆） -->
+![b](./bg.png "top to-bottom")
+![b](./bg.png "right to-left")
+![b](./bg.png "top right to-bottom to-left")
+![b](./bg.png "/ 20% 50% to-40% to-60%")
 ```
 
 人物
@@ -77,9 +87,9 @@
 
 <!-- prettier-ignore -->
 ```markdown
-<!-- 添加人物（淡入），位于正中间，缩放 50%，命名为 nahida -->
-![f fade-in 1/1](./figure.png "nahida 50%")
+<!-- 添加人物 nahida，动画淡入，位于正中间，图片缩放 50%，命名为 nahida -->
+![f fade 1/1](./figure.png "nahida 50%")
 
-<!-- 添加人物（淡入），位于左边，缩放 50% -->
-![f 1/2](./figure.png "nahida 50%")
+<!-- 移动人物，到位于5人站位时的左数第2个，缩放 50% -->
+![f 2/5](./figure.png "nahida 50%")
 ```
