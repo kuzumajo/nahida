@@ -86,7 +86,9 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
   } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
-    const image = src.startsWith("#") ? s(src) : ctx.include(`${src}?url`);
+    const image = src.startsWith("#")
+      ? s(src)
+      : ctx.include(`${src}?url`, "image");
     ctx.yield(`ctx.bg.change(${image}, ${s(animates)}, ${s(transitions)})`);
   } else {
     throw new Error(`Unknown command: ${alt}`);
