@@ -2,7 +2,7 @@ import { chapters } from "../story";
 import { AudioSystem, audioSystem } from "../system/audio";
 import { BackgroundSystem, bgSystem } from "../system/canvas";
 import { consoleSystem, ConsoleSystem } from "../system/console";
-import { waitOrSkip } from "../utils/animations";
+import { convertToSkippable, Skippable, waitOrSkip } from "../utils/animations";
 import { GameSave } from "../utils/saves";
 import { showMenu } from "./menu";
 
@@ -12,6 +12,7 @@ export type GameContext = {
   bg: BackgroundSystem;
   data: any;
   chapter: string;
+  merge(skippables: Skippable[]): Skippable;
 };
 
 function createGameContext(save?: GameSave): GameContext {
@@ -21,6 +22,9 @@ function createGameContext(save?: GameSave): GameContext {
     bg: bgSystem,
     data: save?.data ?? {},
     chapter: save?.chapter ?? "start",
+    merge(skippables) {
+      return convertToSkippable(skippables);
+    },
   };
 }
 

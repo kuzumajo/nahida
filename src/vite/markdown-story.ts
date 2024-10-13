@@ -69,6 +69,9 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
   } else if (alt.startsWith("m")) {
     const audio = ctx.include(`${src}?url`);
     ctx.code(`ctx.audio.playBgm(${audio});`);
+  } else if (alt.startsWith("v")) {
+    if (ctx.vocal) throw new TypeError("Too many vocal binded to text");
+    ctx.vocal = ctx.include(`${src}?url`);
   } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
@@ -112,10 +115,15 @@ function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
   }
   text = text.trim();
   if (text) {
-    ctx.yield(
-      `ctx.console.text(${JSON.stringify(ctx.title)}, ${JSON.stringify(text)})`
-    );
-    ctx.yield(`ctx.console.idle()`);
+    if (ctx.vocal) {
+      ctx.code(`tmp=ctx.audio.playVocal(${ctx.vocal});`);
+      ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
+      ctx.yield(`ctx.merge(ctx.console.idle(), tmp)`);
+      ctx.vocal = "";
+    } else {
+      ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
+      ctx.yield(`ctx.console.idle()`);
+    }
   }
 }
 function parseStoryHeading(ctx: ParseContext, heading: Heading) {
@@ -152,6 +160,7 @@ function collectAsStory(ctx: ParseContext) {
   return [
     ...ctx.includes(),
     `export default async function* (ctx) {`,
+    `var tmp;`,
     ...ctx.codes(),
     `}`,
   ].join("\n");
