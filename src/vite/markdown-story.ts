@@ -16,15 +16,22 @@ const s = JSON.stringify;
 function createParseContext() {
   const includes = [] as string[];
   const codes = [] as string[];
+  const preloads = [] as string[];
+
+  const importMap = new Map<string, string>();
 
   return {
     title: "",
     vocal: "",
 
-    include(source: string) {
-      const id = includes.length;
+    include(source: string, type?: "audio" | "image") {
+      if (importMap.has(source)) return importMap.get(source)!;
+      const id = `story_${includes.length}`;
       includes.push(source);
-      return `story_${id}`;
+      if (type === "audio") this.preload(id, "audio");
+      else if (type === "image") this.preload(id, "image");
+      importMap.set(source, id);
+      return id;
     },
 
     yield(code: string) {
@@ -35,8 +42,12 @@ function createParseContext() {
       codes.push(code);
     },
 
+    preload(source: string, as: string) {
+      preloads.push(`ctx.preload(${source}, ${s(as)});`);
+    },
+
     codes() {
-      return codes;
+      return [...preloads, ...codes];
     },
 
     includes() {
@@ -67,11 +78,11 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       throw new Error(`Unknown console command: ${src}`);
     }
   } else if (alt.startsWith("m")) {
-    const audio = ctx.include(`${src}?url`);
+    const audio = ctx.include(`${src}?url`, "audio");
     ctx.code(`ctx.audio.playBgm(${audio});`);
   } else if (alt.startsWith("v")) {
     if (ctx.vocal) throw new TypeError("Too many vocal binded to text");
-    ctx.vocal = ctx.include(`${src}?url`);
+    ctx.vocal = ctx.include(`${src}?url`, "audio");
   } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");

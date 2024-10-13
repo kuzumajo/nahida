@@ -13,6 +13,7 @@ export type GameContext = {
   data: any;
   chapter: string;
   merge(...skippables: Skippable[]): Skippable;
+  preload(source: string, type: "image" | "audio"): void;
 };
 
 function createGameContext(save?: GameSave): GameContext {
@@ -24,6 +25,15 @@ function createGameContext(save?: GameSave): GameContext {
     chapter: save?.chapter ?? "start",
     merge(...skippables) {
       return convertToSkippable(skippables);
+    },
+    preload(source: string, type: "image" | "audio") {
+      if (type === "image") {
+        const img = new Image();
+        img.src = source;
+      } else if (type === "audio") {
+        const audio = new Audio();
+        audio.src = source;
+      }
     },
   };
 }
