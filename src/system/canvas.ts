@@ -35,20 +35,44 @@ export const bgSystem = {
 
 export type BackgroundSystem = typeof bgSystem;
 
+const feasing = {
+  linear: (x: number) => x,
+  "ease-in": (x: number) => x * x,
+  "ease-out": (x: number) => 1 - (1 - x) * (1 - x),
+  "ease-in-out": (x: number) => 3 * x * x - 2 * x * x * x,
+};
+type Easing = keyof typeof feasing;
+
 function parseAnimation(animation: string, duration: number) {
+  let easing: Easing = "linear";
   const animations = animation
     .split(" ")
     .filter((x) => x.length > 0)
     .filter((animation) => {
-      // override duration
       if (animation.startsWith("duration-")) {
         duration = +animation.slice(9);
+        return false;
+      }
+      if (animation === "linear") {
+        easing = "linear";
+        return false;
+      }
+      if (animation === "ease-in") {
+        easing = "ease-in";
+        return false;
+      }
+      if (animation === "ease-out") {
+        easing = "ease-out";
+        return false;
+      }
+      if (animation === "ease-in-out" || animation === "ease") {
+        easing = "ease-in-out";
         return false;
       }
       return true;
     });
 
-  return [animations, duration] as const;
+  return [animations, duration, easing] as [string[], number, Easing];
 }
 
 /**
@@ -56,25 +80,32 @@ function parseAnimation(animation: string, duration: number) {
  */
 export function animateBackground(div: HTMLDivElement, animation: string) {
   const animates: (Skippable | Animation)[] = [];
-  const [animations, duration] = parseAnimation(animation, 1000);
+  const [animations, duration, easing] = parseAnimation(animation, 1000);
 
   for (const animation of animations) {
     switch (animation) {
       case "fade-in":
         animates.push(
-          div.animate({ opacity: [0, 1] }, { duration, fill: "forwards" })
+          div.animate(
+            { opacity: [0, 1] },
+            { duration, fill: "forwards", easing }
+          )
         );
         break;
       case "fade-out":
         animates.push(
-          div.animate({ opacity: [1, 0] }, { duration, fill: "forwards" })
+          div.animate(
+            { opacity: [1, 0] },
+            { duration, fill: "forwards", easing }
+          )
         );
         break;
       case "conic-in":
         animates.push(
           createAnimation((progress) => {
-            const a = progress * 1.1 - 0.1;
-            const b = progress * 1.1;
+            const x = feasing[easing](progress);
+            const a = x * 1.1 - 0.1;
+            const b = x * 1.1;
             setMask(
               div,
               `conic-gradient(white ${a * 100}%, transparent ${b * 100}%)`,
@@ -86,8 +117,9 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
       case "conic-out":
         animates.push(
           createAnimation((progress) => {
-            const a = progress * 1.1 - 0.1;
-            const b = progress * 1.1;
+            const x = feasing[easing](progress);
+            const a = x * 1.1 - 0.1;
+            const b = x * 1.1;
             setMask(
               div,
               `conic-gradient(transparent ${a * 100}%, white ${b * 100}%)`,
@@ -99,8 +131,9 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
       case "blinds-in":
         animates.push(
           createAnimation((progress) => {
-            const a = progress * 1.5 - 0.5;
-            const b = progress * 1.5;
+            const x = feasing[easing](progress);
+            const a = x * 1.5 - 0.5;
+            const b = x * 1.5;
             setMask(
               div,
               `linear-gradient(to right, white ${a * 100}%, transparent ${
@@ -114,8 +147,9 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
       case "blinds-out":
         animates.push(
           createAnimation((progress) => {
-            const a = progress * 1.5 - 0.5;
-            const b = progress * 1.5;
+            const x = feasing[easing](progress);
+            const a = x * 1.5 - 0.5;
+            const b = x * 1.5;
             setMask(
               div,
               `linear-gradient(to right, transparent ${a * 100}%, white ${
@@ -128,7 +162,7 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
         break;
 
       default:
-        console.warn("unknown animation: " + animation);
+        console.warn(`Unknown background animation: ${animation}`);
     }
   }
 
@@ -140,7 +174,7 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
  */
 export function animateImage(div: HTMLDivElement, animation: string) {
   const animates: Animation[] = [];
-  const [animations, duration] = parseAnimation(animation, 60000);
+  const [animations, duration, easing] = parseAnimation(animation, 60000);
 
   let fromPosition = [];
   let toPosition = [];
@@ -188,7 +222,7 @@ export function animateImage(div: HTMLDivElement, animation: string) {
     animates.push(
       div.animate(
         { backgroundPosition: [from, to] },
-        { duration, fill: "forwards" }
+        { duration, fill: "forwards", easing }
       )
     );
   } else {
