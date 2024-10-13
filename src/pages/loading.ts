@@ -7,16 +7,7 @@ type LoadingTask = {
   src: string;
 };
 
-const loadingTasks: LoadingTask[] = [
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-  { type: "image", src: "" },
-];
+const loadingTasks: LoadingTask[] = [{ type: "image", src: "/menu-bg.jpg" }];
 let finished = 0;
 
 function updateLoadingText() {

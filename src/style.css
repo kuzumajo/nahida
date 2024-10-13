@@ -267,7 +267,7 @@ body {
   border-left: 0.25rem solid transparent;
   border-right: 0.25rem solid transparent;
   border-top: 0.45rem solid aqua;
-  animation: bounce 1s ease-in-out infinite alternate;
+  animation: bounce 0.5s ease-out infinite alternate;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s;

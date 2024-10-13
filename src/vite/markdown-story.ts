@@ -75,7 +75,7 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
   } else if (alt.startsWith("b")) {
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
-    const image = ctx.include(`${src}?url`);
+    const image = src.startsWith("#") ? s(src) : ctx.include(`${src}?url`);
     ctx.yield(`ctx.bg.change(${image}, ${s(animates)}, ${s(transitions)})`);
   } else {
     throw new Error(`Unknown command: ${alt}`);
@@ -116,14 +116,11 @@ function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
   text = text.trim();
   if (text) {
     if (ctx.vocal) {
-      ctx.code(`tmp=ctx.audio.playVocal(${ctx.vocal});`);
-      ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
-      ctx.yield(`ctx.merge(ctx.console.idle(), tmp)`);
+      ctx.code(`ctx.audio.playVocal(${ctx.vocal});`);
       ctx.vocal = "";
-    } else {
-      ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
-      ctx.yield(`ctx.console.idle()`);
     }
+    ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
+    ctx.yield(`ctx.console.idle()`);
   }
 }
 function parseStoryHeading(ctx: ParseContext, heading: Heading) {

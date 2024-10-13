@@ -12,7 +12,7 @@ export type GameContext = {
   bg: BackgroundSystem;
   data: any;
   chapter: string;
-  merge(skippables: Skippable[]): Skippable;
+  merge(...skippables: Skippable[]): Skippable;
 };
 
 function createGameContext(save?: GameSave): GameContext {
@@ -22,7 +22,7 @@ function createGameContext(save?: GameSave): GameContext {
     bg: bgSystem,
     data: save?.data ?? {},
     chapter: save?.chapter ?? "start",
-    merge(skippables) {
+    merge(...skippables) {
       return convertToSkippable(skippables);
     },
   };

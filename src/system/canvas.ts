@@ -6,30 +6,26 @@ import {
 } from "../utils/animations";
 
 export const bgSystem = {
-  stack: [] as { src: string; div: HTMLDivElement }[],
+  stack: [] as HTMLDivElement[],
   clean() {
-    while (this.stack.length > 0) this.stack.shift()!.div.remove();
+    while (this.stack.length > 0) this.stack.shift()!.remove();
   },
   change(src: string, animates: string, transitions: string) {
-    while (this.stack.length > 1) this.stack.shift()!.div.remove();
+    while (this.stack.length > 1) this.stack.shift()!.remove();
 
-    if (
-      this.stack.length === 0 ||
-      this.stack[this.stack.length - 1].src !== src
-    ) {
-      const div = document.createElement("div");
-      div.style.position = "absolute";
-      div.style.inset = "0";
-      backgroundPage.append(div);
-      div.style.backgroundImage = `url(${src})`;
-      animateImage(div, transitions);
-      const skippable = convertToSkippable(animateBackground(div, animates));
-      this.stack.push({ src, div });
-      return skippable;
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.inset = "0";
+    backgroundPage.append(div);
+    if (src.startsWith("#")) {
+      div.style.backgroundColor = src;
     } else {
-      const div = this.stack[this.stack.length - 1].div;
-      return convertToSkippable(animateBackground(div, animates));
+      div.style.backgroundImage = `url(${src})`;
     }
+    animateImage(div, transitions);
+    const skippable = convertToSkippable(animateBackground(div, animates));
+    this.stack.push(div);
+    return skippable;
   },
 };
 
@@ -76,7 +72,7 @@ function parseAnimation(animation: string, duration: number) {
 }
 
 /**
- * Animate `fade-in`, `fade-out` animations
+ * Animate `fade` animations
  */
 export function animateBackground(div: HTMLDivElement, animation: string) {
   const animates: (Skippable | Animation)[] = [];
@@ -84,7 +80,7 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
 
   for (const animation of animations) {
     switch (animation) {
-      case "fade-in":
+      case "fade":
         animates.push(
           div.animate(
             { opacity: [0, 1] },
@@ -92,15 +88,7 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
           )
         );
         break;
-      case "fade-out":
-        animates.push(
-          div.animate(
-            { opacity: [1, 0] },
-            { duration, fill: "forwards", easing }
-          )
-        );
-        break;
-      case "conic-in":
+      case "conic":
         animates.push(
           createAnimation((progress) => {
             const x = feasing[easing](progress);
@@ -114,21 +102,7 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
           }, duration)
         );
         break;
-      case "conic-out":
-        animates.push(
-          createAnimation((progress) => {
-            const x = feasing[easing](progress);
-            const a = x * 1.1 - 0.1;
-            const b = x * 1.1;
-            setMask(
-              div,
-              `conic-gradient(transparent ${a * 100}%, white ${b * 100}%)`,
-              "100%"
-            );
-          }, duration)
-        );
-        break;
-      case "blinds-in":
+      case "blinds":
         animates.push(
           createAnimation((progress) => {
             const x = feasing[easing](progress);
@@ -137,22 +111,6 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
             setMask(
               div,
               `linear-gradient(to right, white ${a * 100}%, transparent ${
-                b * 100
-              }%)`,
-              "5%"
-            );
-          }, duration)
-        );
-        break;
-      case "blinds-out":
-        animates.push(
-          createAnimation((progress) => {
-            const x = feasing[easing](progress);
-            const a = x * 1.5 - 0.5;
-            const b = x * 1.5;
-            setMask(
-              div,
-              `linear-gradient(to right, transparent ${a * 100}%, white ${
                 b * 100
               }%)`,
               "5%"
@@ -179,6 +137,8 @@ export function animateImage(div: HTMLDivElement, animation: string) {
   let fromPosition = [];
   let toPosition = [];
   let hasAnimation = false;
+  let isPosition = false;
+  let size = [];
 
   for (const animation of animations) {
     switch (animation) {
@@ -202,12 +162,25 @@ export function animateImage(div: HTMLDivElement, animation: string) {
       case "cover":
       case "contain":
       case "fill":
-        div.style.backgroundSize = animation;
+        size.push(animation);
+        break;
+
+      case "/":
+        isPosition = true;
         break;
 
       default:
         if (animation.endsWith("%")) {
-          div.style.backgroundSize = animation;
+          if (isPosition) {
+            if (animation.startsWith("to-")) {
+              hasAnimation = true;
+              toPosition.push(animation.slice(3));
+            } else {
+              fromPosition.push(animation);
+            }
+          } else {
+            size.push(animation);
+          }
           break;
         }
 
@@ -215,9 +188,10 @@ export function animateImage(div: HTMLDivElement, animation: string) {
     }
   }
 
-  const from = fromPosition.join(" ");
+  const from = fromPosition.join(" ") || "center";
   const to = toPosition.join(" ");
 
+  div.style.backgroundSize = size.join(" ") || "cover";
   if (hasAnimation && from !== to) {
     animates.push(
       div.animate(

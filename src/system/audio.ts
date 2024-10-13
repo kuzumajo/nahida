@@ -1,38 +1,31 @@
-import { Skippable } from "../utils/animations";
-
-let bgm = new Audio();
+let bgm: HTMLAudioElement | null = null;
+let vocal: HTMLAudioElement | null = null;
 
 export const audioSystem = {
   currentBgm: "",
   playBgm(src: string) {
     if (src === this.currentBgm) {
-      bgm.play();
+      bgm?.play();
       return;
     }
-    bgm.pause();
+    bgm?.pause();
     bgm = new Audio();
     bgm.src = src;
     bgm.loop = true;
-    bgm.oncanplay = () => bgm.play();
+    bgm.volume = 0.4;
+    bgm.oncanplay = () => bgm?.play();
     this.currentBgm = src;
   },
-  playVocal(src: string): Skippable {
-    let resolve: () => void;
-    const finished = new Promise<void>((resolve_) => (resolve = resolve_));
-    const vocal = new Audio();
+  playVocal(src: string) {
+    vocal?.pause();
+    vocal = new Audio();
     vocal.src = src;
-    vocal.oncanplay = () => vocal.play();
-    vocal.onended = () => resolve && resolve();
-    return {
-      finished,
-      finish() {
-        vocal.currentTime = Infinity;
-      },
-    };
+    vocal.oncanplay = () => vocal?.play();
   },
   clean() {
-    bgm.currentTime = 0;
-    bgm.pause();
+    bgm?.pause();
+    vocal?.pause();
+    this.currentBgm = "";
   },
 };
 
