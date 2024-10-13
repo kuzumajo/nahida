@@ -1,5 +1,4 @@
 ![c](#hide)
-![c](#wait "4000")
 
 ![c](#wait "2000")
 ![m][theme]
@@ -51,12 +50,12 @@
 ![c](#hide)
 
 ![b fade][shiroko-1]
-![c](#wait "1500")
-![b fade](#000)
+![c](#wait "1000")
+![b fade duration-500](#000)
 
-![b fade][shiroko-2]
-![c](#wait "1500")
-![b fade](#000)
+![b fade duration-500][shiroko-2]
+![c](#wait "1000")
+![b fade duration-500](#000)
 
 ![c](#show)
 
@@ -155,11 +154,11 @@
 [view-office]: ../assets/images/BG_CS_PR_01.png
 [shiroko-1]: ../assets/images/BG_CS_PR_08.png
 [shiroko-2]: ../assets/images/BG_CS_PR_09.png
-[kaicho-1]: ../assets/images/BG_CS_PR_07.png "105%"
-[kaicho-2]: ../assets/images/BG_CS_PR_12.png "105%"
-[kaicho-3]: ../assets/images/BG_CS_PR_19.png "105%"
-[stu-trinity]: ../assets/images/BG_CS_Trinity_01.png "115%"
-[stu-gehenna1]: ../assets/images/BG_CS_Gehenna_02_Letter.png "115%"
-[stu-gehenna2]: ../assets/images/BG_CS_Gehenna_03_Letter.png "115%"
-[stu-gehenna3]: ../assets/images/BG_CS_Gehenna_01_Letter.png "115%"
-[stu-abydos]: ../assets/images/BG_CS_Abydos_01_Letter.png "105%"
+[kaicho-1]: ../assets/images/BG_CS_PR_07.png
+[kaicho-2]: ../assets/images/BG_CS_PR_12.png
+[kaicho-3]: ../assets/images/BG_CS_PR_19.png
+[stu-trinity]: ../assets/images/BG_CS_Trinity_01.png
+[stu-gehenna1]: ../assets/images/BG_CS_Gehenna_02_Letter.png
+[stu-gehenna2]: ../assets/images/BG_CS_Gehenna_03_Letter.png
+[stu-gehenna3]: ../assets/images/BG_CS_Gehenna_01_Letter.png
+[stu-abydos]: ../assets/images/BG_CS_Abydos_01_Letter.png

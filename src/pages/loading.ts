@@ -48,24 +48,31 @@ export async function preloadResources(tasks: LoadingTask[]) {
   hideLoading();
 }
 
+const loaded = new Map<string, string>();
+
 export async function manuallyLoadResources(resources: string[]) {
-  showLoading();
-  let finished = 0;
-  updateLoadingText(finished, resources.length);
-  const results = await Promise.all(
-    resources.map(async (url) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      updateLoadingText(++finished, resources.length);
-      return URL.createObjectURL(blob);
-    })
-  );
-  hideLoading();
-  return results;
+  const notloaded = resources.filter((x) => !loaded.has(x));
+
+  if (notloaded.length > 0) {
+    showLoading();
+    let finished = resources.length - notloaded.length;
+    updateLoadingText(finished, resources.length);
+    await Promise.all(
+      notloaded.map(async (url) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        loaded.set(url, URL.createObjectURL(blob));
+        updateLoadingText(++finished, resources.length);
+      })
+    );
+    hideLoading();
+  }
+
+  return resources.map((x) => loaded.get(x)!);
 }
 
-export async function revokeResources(urls: string[]) {
-  for (const url of urls) {
-    URL.revokeObjectURL(url);
-  }
-}
+// export async function revokeResources(urls: string[]) {
+//   for (const url of urls) {
+//     URL.revokeObjectURL(url);
+//   }
+// }
