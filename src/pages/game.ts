@@ -3,7 +3,7 @@ import { AudioSystem, audioSystem } from "../system/audio";
 import { BackgroundSystem, bgSystem } from "../system/canvas";
 import { consoleSystem, ConsoleSystem } from "../system/console";
 import { convertToSkippable, Skippable, waitOrSkip } from "../utils/animations";
-import { GameSave } from "../utils/saves";
+import { GameSave, saveSave } from "../utils/saves";
 import { manuallyLoadResources } from "./loading";
 import { showMenu } from "./menu";
 
@@ -44,7 +44,14 @@ export async function startGame(ctx: GameContext) {
     const next = await generator.next();
     if (next.done) {
       if (next.value) {
-        generator = getChapter(next.value).story(ctx);
+        // entering next chapter
+        const chapter = getChapter(next.value);
+        saveSave("auto", {
+          chapter: next.value,
+          data: ctx.data,
+          save_time: Date.now(),
+        });
+        generator = chapter.story(ctx);
       } else {
         break;
       }
