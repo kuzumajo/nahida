@@ -10,8 +10,24 @@ import {
 } from "mdast";
 import { remark } from "remark";
 import remarkInlineLinks from "remark-inline-links";
+import { Command } from "../pages/game";
 
 const s = JSON.stringify;
+function ss(x: any): string {
+  return (
+    "{" +
+    Object.entries(x)
+      .map(([k, v]) =>
+        typeof v === "string"
+          ? v.startsWith("\0")
+            ? `${k}:${v.slice(1)}`
+            : `${k}:${s(v)}`
+          : `${k}:${ss(v)}`
+      )
+      .join(",") +
+    "}"
+  );
+}
 
 function createParseContext() {
   const includes = [] as string[];
@@ -23,7 +39,7 @@ function createParseContext() {
 
   return {
     title: "",
-    vocal: "",
+    command: {} as Command,
 
     include(source: string) {
       if (importMap.has(source)) {
@@ -40,7 +56,7 @@ function createParseContext() {
         return resourceMap.get(source)!;
       }
       const item = this.include(source);
-      const id = `item[${resources.length}]`;
+      const id = `\0_items[${resources.length}]`;
       resources.push(item);
       resourceMap.set(source, id);
       return id;
@@ -57,7 +73,7 @@ function createParseContext() {
     codes() {
       if (resources.length > 0) {
         return [
-          `const item = await ctx.load([${resources.join(", ")}]);`,
+          `const _items = await ctx.load([${resources.join(", ")}]);`,
           ...codes,
         ];
       } else {
@@ -75,34 +91,44 @@ function createParseContext() {
 
 type ParseContext = ReturnType<typeof createParseContext>;
 
+/** `![alt](src "title")` */
 function parseStoryImage(ctx: ParseContext, image: Image) {
-  // ![alt](src "title")
   const alt = image.alt || "";
   const src = image.url;
   const title = image.title || "";
 
+  // Commands
   if (alt === "c") {
     if (src === "#wait") {
       if (!title) throw new TypeError("#wait must have one param");
-      ctx.yield(`ctx.console.wait(${+title})`);
+      ctx.yield(`ctx.wait(${+title})`);
     } else if (src === "#show") {
-      ctx.code(`ctx.console.show();`);
+      ctx.code(`ctx.sys.console.show();`);
     } else if (src === "#hide") {
-      ctx.code(`ctx.console.hide();`);
+      ctx.code(`ctx.sys.console.hide();`);
     } else {
-      throw new Error(`Unknown console command: ${src}`);
+      throw new Error(`Unknown command: ${src}`);
     }
-  } else if (alt.startsWith("m")) {
-    const audio = ctx.resource(`${src}?url`);
-    ctx.code(`ctx.audio.playBgm(${audio});`);
-  } else if (alt.startsWith("v")) {
-    if (ctx.vocal) throw new TypeError("Too many vocal binded to text");
-    ctx.vocal = ctx.resource(`${src}?url`);
-  } else if (alt.startsWith("b")) {
+  }
+  // BGM
+  else if (alt.startsWith("m")) {
+    if (ctx.command.m) throw new TypeError("Too many BGM in paragraph");
+    ctx.command.m = ctx.resource(`${src}?url`);
+  }
+  // Voice
+  else if (alt.startsWith("v")) {
+    if (ctx.command.v) throw new TypeError("Too many vocal binded to text");
+    ctx.command.v = ctx.resource(`${src}?url`);
+  }
+  // Background
+  else if (alt.startsWith("b")) {
+    if (ctx.command.b) throw new TypeError("Too many backgrounds in paragraph");
     const animates = alt.split(/\s+/).slice(1).join(" ");
     const transitions = title.split(/\s+/).join(" ");
-    const image = src.startsWith("#") ? s(src) : ctx.resource(`${src}?url`);
-    ctx.yield(`ctx.bg.change(${image}, ${s(animates)}, ${s(transitions)})`);
+    const image = src.startsWith("#") ? src : ctx.resource(`${src}?url`);
+    ctx.command.b = { s: image };
+    if (animates) ctx.command.b.a = animates;
+    if (transitions) ctx.command.b.t = transitions;
   } else {
     throw new Error(`Unknown command: ${alt}`);
   }
@@ -125,6 +151,7 @@ function parseStoryLink(ctx: ParseContext, link: Link) {
 }
 function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
   let text = "";
+  ctx.command = {};
   for (const child of paragraph.children) {
     if (child.type === "text") {
       text += child.value;
@@ -141,12 +168,11 @@ function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
   }
   text = text.trim();
   if (text) {
-    if (ctx.vocal) {
-      ctx.code(`ctx.audio.playVocal(${ctx.vocal});`);
-      ctx.vocal = "";
-    }
-    ctx.yield(`ctx.console.text(${s(ctx.title)}, ${s(text)})`);
-    ctx.yield(`ctx.console.idle()`);
+    ctx.command.t = { t: text };
+    if (ctx.title) ctx.command.t.l = ctx.title;
+  }
+  if (s(ctx.command) !== "{}") {
+    ctx.yield(`ctx.exec(${ss(ctx.command)})`);
   }
 }
 function parseStoryHeading(ctx: ParseContext, heading: Heading) {

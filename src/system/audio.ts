@@ -22,7 +22,7 @@ export const audioSystem = {
     vocal.src = src;
     vocal.oncanplay = () => vocal?.play();
   },
-  clean() {
+  reset() {
     bgm?.pause();
     vocal?.pause();
     this.currentBgm = "";

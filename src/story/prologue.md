@@ -2,42 +2,49 @@
 
 ![c](#wait "2000")
 ![m][theme]
-![c](#wait "1000")
 
+![c](#wait "1000")
 ![b fade][nexon]
+
 ![c](#wait "3000")
 ![b fade](#000)
 
 ![b fade duration-500][view-kivotos]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-downtown]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-desert]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-school]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-sabaku]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-street]
+
 ![c](#wait "3000")
 ![b fade duration-1500](#000)
 
 ![b fade duration-500][view-office]
+
 ![c](#wait "4000")
 ![b fade duration-1500](#000)
 
 ![c](#wait "2000")
-![c](#show)
 
 # ？？？
 
@@ -47,27 +54,22 @@
 ![v](../assets/audio/char/Main_11000_002.ogg)
 我的选择，以及由此招致的全部状况。
 
-![c](#hide)
-
 ![b fade][shiroko-1]
+
 ![c](#wait "1000")
 ![b fade duration-500](#000)
 
 ![b fade duration-500][shiroko-2]
+
 ![c](#wait "1000")
 ![b fade duration-500](#000)
-
-![c](#show)
 
 ![v](../assets/audio/char/Main_11000_003.ogg)
 最终，沦落到如此结局，才醒悟原来您才是对的……
 
-![c](#hide)
-
 ![b fade duration-2000](#fff)
-![b fade duration-2000][kaicho-1]
 
-![c](#show)
+![b fade duration-2000][kaicho-1]
 
 # ？？？
 
@@ -83,31 +85,33 @@
 ![v](../assets/audio/char/Main_11000_007.ogg)
 即使您什么都回忆不起来，在相同的状况下，恐怕您也会做出同样的选择吧……
 
-![c](#hide)
-![b fade][kaicho-2]
-![c](#show)
+![b fade duration-2000][kaicho-2]
 
+![c](#wait "500")
 ![v](../assets/audio/char/Main_11000_008.ogg)
 所以……重要的不是经验，而是选择。
 
 ![v](../assets/audio/char/Main_11000_009.ogg)
 只有您才能做出的种种选择。
 
-![c](#hide)
 ![b fade][stu-trinity]
+
 ![c](#wait "3000")
 ![b fade][stu-gehenna1]
+
 ![c](#wait "3000")
 ![b fade][stu-gehenna2]
+
 ![c](#wait "3000")
 ![b fade][stu-gehenna3]
+
 ![c](#wait "3000")
 ![b fade][stu-abydos]
+
 ![c](#wait "3000")
 ![b fade duration-2000](#000)
 
 ![b fade duration-500][kaicho-2]
-![c](#show)
 
 ![v](../assets/audio/char/Main_11000_010.ogg)
 您曾经说过何为肩负责任之人的事情……对吧。
@@ -136,9 +140,7 @@
 ![v](../assets/audio/char/Main_11000_018.ogg)
 您一定可以找到……连接着那个结果的选项。
 
-![c](#hide)
 ![b fade][kaicho-3]
-![c](#show)
 
 ![v](../assets/audio/char/Main_11000_019.ogg)
 所以，老师。请务必……

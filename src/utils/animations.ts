@@ -69,6 +69,29 @@ export function wait(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
+export function idle(): Skippable {
+  let resolve: () => void;
+  const finished = new Promise<void>((resolve_) => (resolve = resolve_));
+  return {
+    finished,
+    finish() {
+      resolve && resolve();
+    },
+  };
+}
+
+export function skippableWait(timeout: number): Skippable {
+  let resolve: void | (() => void);
+  const finished = new Promise<void>((resolve_) => (resolve = resolve_));
+  const finish = () => resolve && (resolve = resolve());
+  setTimeout(finish, timeout);
+  return { finished, finish };
+}
+
+export function empty(): Skippable {
+  return { finished: Promise.resolve(), finish() {} };
+}
+
 requestAnimationFrame(function animate() {
   requestAnimationFrame(animate);
 

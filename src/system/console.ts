@@ -1,5 +1,5 @@
 import { consolePage } from "../elements";
-import { convertToSkippable, Skippable } from "../utils/animations";
+import { convertToSkippable, empty } from "../utils/animations";
 
 const consoleTitle = document.getElementById(
   "console-title"
@@ -26,67 +26,32 @@ consolePage.addEventListener("click", () => {
 
 export const consoleSystem = {
   show() {
-    this.setTitle("");
-    this.setText("");
     consolePage.classList.add("show");
-    return convertToSkippable(consolePage.getAnimations());
   },
   hide() {
     consolePage.classList.remove("show");
-    return convertToSkippable(consolePage.getAnimations());
   },
-  wait(timeout: number): Skippable {
-    let resolved = false;
-    let resolve: () => void;
-    const finished = new Promise<void>((resolve_) => (resolve = resolve_));
-    const finish = () => {
-      if (resolved) return;
-      resolved = true;
-      resolve && resolve();
-    };
-    setTimeout(() => finish(), timeout);
-    return { finished, finish };
-  },
-  setTitle(title: string) {
-    consoleTitle.textContent = title;
-  },
-  setText(text: string) {
+  text(text: string, title: string = "") {
     consoleText.textContent = text;
+    consoleTitle.textContent = title;
     if (text) {
       consoleText.style.animation = "none";
       void consoleText.offsetHeight;
       consoleText.style.animation = "";
       consoleText.style.animationDuration = `${text.length * 30}ms`;
-      return consoleText.getAnimations();
+      return convertToSkippable(consoleText.getAnimations());
     }
-    return [];
+    return empty();
   },
-  text(title: string, text: string) {
-    this.setTitle(title);
-    const animations = this.setText(text);
-    return convertToSkippable(animations);
-  },
-  setIdle(show: boolean) {
+  idle(show: boolean) {
     if (show) consoleIdle.classList.add("show");
     else consoleIdle.classList.remove("show");
   },
-  async idle() {
-    this.setIdle(true);
-    await registerConsoleClicked().clicked;
-    this.setIdle(false);
-  },
-  clean() {
-    this.setText("");
-    this.setTitle("");
+  reset() {
+    this.text("");
+    this.idle(false);
     this.hide();
   },
 };
 
 export type ConsoleSystem = typeof consoleSystem;
-
-export function prepareConsole() {
-  consoleSystem.setTitle("");
-  consoleSystem.setText("");
-  consoleSystem.setIdle(false);
-  consoleSystem.hide();
-}

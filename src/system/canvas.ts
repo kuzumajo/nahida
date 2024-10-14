@@ -5,12 +5,13 @@ import {
   Skippable,
 } from "../utils/animations";
 
-export const bgSystem = {
+export const canvasSystem = {
   stack: [] as HTMLDivElement[],
-  clean() {
-    while (this.stack.length > 0) this.stack.shift()!.remove();
-  },
-  change(src: string, animates: string, transitions: string) {
+  changeBackground(
+    src: string,
+    animates: string = "",
+    transitions: string = ""
+  ) {
     while (this.stack.length > 1) this.stack.shift()!.remove();
 
     const div = document.createElement("div");
@@ -27,9 +28,12 @@ export const bgSystem = {
     this.stack.push(div);
     return skippable;
   },
+  reset() {
+    while (this.stack.length > 0) this.stack.shift()!.remove();
+  },
 };
 
-export type BackgroundSystem = typeof bgSystem;
+export type BackgroundSystem = typeof canvasSystem;
 
 const feasing = {
   linear: (x: number) => x,
