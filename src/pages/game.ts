@@ -118,7 +118,7 @@ export async function startGame(ctx: GameContext) {
   ctx.sys.canvas.reset();
   ctx.sys.console.reset();
 
-  const story = getChapter(ctx.chapter).story;
+  const story = (await getChapter(ctx.chapter).story()).default;
   let generator = story(ctx);
   while (true) {
     const next = await generator.next();
@@ -131,7 +131,8 @@ export async function startGame(ctx: GameContext) {
           data: ctx.data,
           save_time: Date.now(),
         });
-        generator = chapter.story(ctx);
+        const story = (await chapter.story()).default;
+        generator = story(ctx);
       } else {
         break;
       }

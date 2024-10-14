@@ -7,5 +7,5 @@ export type Story = (
 
 export type Chapter = {
   name: string;
-  story: Story;
+  story: () => Promise<{ default: Story }>;
 };
