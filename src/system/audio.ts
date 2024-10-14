@@ -12,7 +12,7 @@ export const audioSystem = {
     bgm = new Audio();
     bgm.src = src;
     bgm.loop = true;
-    bgm.volume = 0.4;
+    bgm.volume = 0.25;
     bgm.oncanplay = () => bgm?.play();
     this.currentBgm = src;
   },

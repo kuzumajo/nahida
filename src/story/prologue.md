@@ -140,8 +140,9 @@
 ![v](../assets/audio/char/Main_11000_018.ogg)
 您一定可以找到……连接着那个结果的选项。
 
-![b fade][kaicho-3]
+![b fade duration-2000][kaicho-3]
 
+![c](#wait "1000")
 ![v](../assets/audio/char/Main_11000_019.ogg)
 所以，老师。请务必……
 
