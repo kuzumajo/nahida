@@ -1,3 +1,5 @@
+![m][bgm]
+
 ![c](#wait "2000")
 ![b fade][bg]
 
@@ -175,3 +177,4 @@
 BAD END.
 
 [bg]: ../assets/images/BG_ReceptionRoom.png
+[bgm]: ../assets/audio/bgm/Theme_06.ogg
