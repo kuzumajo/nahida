@@ -26,6 +26,13 @@ export class SpineSystem {
     }
     return parseAnimation(spine, animation, transition);
   }
+
+  reset() {
+    const children = [...this.#app.stage.children];
+    for (const child of children) {
+      this.#app.stage.removeChild(child);
+    }
+  }
 }
 
 function parseAnimation(spine: Spine, animation: string, transition: string) {

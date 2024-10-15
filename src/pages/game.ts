@@ -120,6 +120,7 @@ function createGameContext(chapter: string, data: any): GameContext {
 }
 
 export async function startGame(ctx: GameContext) {
+  ctx.sys.spine.reset();
   ctx.sys.audio.reset();
   ctx.sys.canvas.reset();
   ctx.sys.console.reset();
@@ -138,6 +139,10 @@ export async function startGame(ctx: GameContext) {
           save_time: Date.now(),
         });
         const story = (await chapter.story()).default;
+        ctx.sys.spine.reset();
+        ctx.sys.audio.reset();
+        ctx.sys.canvas.reset();
+        ctx.sys.console.reset();
         generator = story(ctx);
       } else {
         break;
