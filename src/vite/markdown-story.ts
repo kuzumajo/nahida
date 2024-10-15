@@ -14,52 +14,48 @@ import { Command } from "../pages/game";
 
 const s = JSON.stringify;
 function ss(x: any): string {
-  return (
-    "{" +
-    Object.entries(x)
-      .map(([k, v]) =>
-        typeof v === "string"
-          ? v.startsWith("\0")
-            ? `${k}:${v.slice(1)}`
-            : `${k}:${s(v)}`
-          : `${k}:${ss(v)}`
-      )
-      .join(",") +
-    "}"
-  );
+  return Array.isArray(x)
+    ? "[" + x.map((x) => ss(x)).join(",") + "]"
+    : "{" +
+        Object.entries(x)
+          .map(([k, v]) =>
+            typeof v === "string"
+              ? v.startsWith("\0")
+                ? `${k}:${v.slice(1)}`
+                : `${k}:${s(v)}`
+              : `${k}:${ss(v)}`
+          )
+          .join(",") +
+        "}";
 }
 
 function createParseContext() {
-  const includes = [] as string[];
   const codes = [] as string[];
+  const spines = [] as string[];
+  const imports = [] as string[];
   const resources = [] as string[];
-
-  const importMap = new Map<string, string>();
-  const resourceMap = new Map<string, string>();
 
   return {
     title: "",
     command: {} as Command,
 
     include(source: string) {
-      if (importMap.has(source)) {
-        return importMap.get(source)!;
-      }
-      const id = `story_${includes.length}`;
-      includes.push(source);
-      importMap.set(source, id);
-      return id;
+      const index = imports.indexOf(source);
+      if (index > -1) return `__i_${index}`;
+      else return `__i_${imports.push(source) - 1}`;
     },
 
     resource(source: string) {
-      if (resourceMap.has(source)) {
-        return resourceMap.get(source)!;
-      }
-      const item = this.include(source);
-      const id = `\0_items[${resources.length}]`;
-      resources.push(item);
-      resourceMap.set(source, id);
-      return id;
+      const name = this.include(`${source}?url`);
+      const index = resources.indexOf(name);
+      if (index > -1) return `\0_items[${index}]`;
+      else return `\0_items[${resources.push(name) - 1}]`;
+    },
+
+    spine(name: string) {
+      const index = spines.indexOf(name);
+      if (index > -1) return `\0_spines[${index}]`;
+      else return `\0_spines[${spines.push(name) - 1}]`;
     },
 
     yield(code: string) {
@@ -71,20 +67,15 @@ function createParseContext() {
     },
 
     codes() {
-      if (resources.length > 0) {
-        return [
-          `const _items = await ctx.load([${resources.join(", ")}]);`,
-          ...codes,
-        ];
-      } else {
-        return codes;
-      }
-    },
-
-    includes() {
-      return includes.map(
-        (source, index) => `import story_${index} from "${source}";`
-      );
+      return [
+        ...imports.map((x, i) => `import __i_${i} from "${x}";`),
+        `export default async function* (ctx) {`,
+        `const [_items, _spines] = await ctx.load([${resources.join(
+          ", "
+        )}], [${spines.map((x) => s(x)).join(", ")}]);`,
+        ...codes,
+        `};`,
+      ].join("\n");
     },
   };
 }
@@ -96,9 +87,10 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
   const alt = image.alt || "";
   const src = image.url;
   const title = image.title || "";
+  const [name, ...alts] = alt.split(/\s+/);
 
   // Commands
-  if (alt === "c") {
+  if (["c", "con", "console"].includes(name)) {
     if (src === "#wait") {
       if (!title) throw new TypeError("#wait must have one param");
       ctx.yield(`ctx.wait(${+title})`);
@@ -111,25 +103,40 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
     }
   }
   // BGM
-  else if (alt.startsWith("m")) {
+  else if (["m", "bgm"].includes(name)) {
     if (ctx.command.m) throw new TypeError("Too many BGM in paragraph");
-    ctx.command.m = ctx.resource(`${src}?url`);
+    ctx.command.m = ctx.resource(src);
   }
   // Voice
-  else if (alt.startsWith("v")) {
+  else if (["v", "voice"].includes(name)) {
     if (ctx.command.v) throw new TypeError("Too many vocal binded to text");
-    ctx.command.v = ctx.resource(`${src}?url`);
+    ctx.command.v = ctx.resource(src);
   }
   // Background
-  else if (alt.startsWith("b")) {
+  else if (["b", "bgm"].includes(name)) {
     if (ctx.command.b) throw new TypeError("Too many backgrounds in paragraph");
-    const animates = alt.split(/\s+/).slice(1).join(" ");
+    const animates = alts.join(" ");
     const transitions = title.split(/\s+/).join(" ");
-    const image = src.startsWith("#") ? src : ctx.resource(`${src}?url`);
+    const image = src.startsWith("#") ? src : ctx.resource(src);
     ctx.command.b = { s: image };
     if (animates) ctx.command.b.a = animates;
     if (transitions) ctx.command.b.t = transitions;
-  } else {
+  }
+  // Spine
+  else if (["f", "fig", "spine"].includes(name)) {
+    if (!ctx.command.f) ctx.command.f = [];
+    if (!src.startsWith("#")) throw new TypeError("Spine must starts with #");
+    const name = src.slice(1);
+    const model = ctx.spine(name);
+    const animations = alts.join(" ");
+    const transitions = title.split(/\s+/).join(" ");
+    const spine: (typeof ctx.command.f)[number] = { m: model as any };
+    if (animations) spine.a = animations;
+    if (transitions) spine.t = transitions;
+    ctx.command.f.push(spine);
+  }
+  // Unknown
+  else {
     throw new Error(`Unknown command: ${alt}`);
   }
 }
@@ -206,12 +213,7 @@ function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
 }
 
 function collectAsStory(ctx: ParseContext) {
-  return [
-    ...ctx.includes(),
-    `export default async function* (ctx) {`,
-    ...ctx.codes(),
-    `}`,
-  ].join("\n");
+  return ctx.codes();
 }
 
 async function parseStory(markdown: string) {

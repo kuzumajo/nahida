@@ -146,6 +146,11 @@
 ![v](../assets/audio/char/Main_11000_019.ogg)
 所以，老师。请务必……
 
+![b fade 5s](#000)
+
+![c](#wait "2000")
+[next](#chapter-1)
+
 [theme]: ../assets/audio/bgm/Theme_34.ogg
 [nexon]: ../assets/images/BG_CS_PR_13.png
 [view-kivotos]: ../assets/images/BG_View_Kivotos.png

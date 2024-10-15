@@ -5,14 +5,17 @@ import {
   Skippable,
 } from "../utils/animations";
 
-export const canvasSystem = {
-  stack: [] as HTMLDivElement[],
+export class CanvasSystem {
+  #stack: HTMLDivElement[] = [];
+
   changeBackground(
     src: string,
     animates: string = "",
     transitions: string = ""
   ) {
-    while (this.stack.length > 1) this.stack.shift()!.remove();
+    while (this.#stack.length > 1) {
+      this.#stack.shift()!.remove();
+    }
 
     const div = document.createElement("div");
     div.style.position = "absolute";
@@ -25,15 +28,16 @@ export const canvasSystem = {
     }
     animateImage(div, transitions);
     const skippable = convertToSkippable(animateBackground(div, animates));
-    this.stack.push(div);
+    this.#stack.push(div);
     return skippable;
-  },
-  reset() {
-    while (this.stack.length > 0) this.stack.shift()!.remove();
-  },
-};
+  }
 
-export type BackgroundSystem = typeof canvasSystem;
+  reset() {
+    while (this.#stack.length > 0) {
+      this.#stack.shift()!.remove();
+    }
+  }
+}
 
 const feasing = {
   linear: (x: number) => x,
@@ -67,6 +71,14 @@ function parseAnimation(animation: string, duration: number) {
       }
       if (animation === "ease-in-out" || animation === "ease") {
         easing = "ease-in-out";
+        return false;
+      }
+      if (animation.endsWith("ms")) {
+        duration = +animation.slice(0, -2);
+        return false;
+      }
+      if (animation.endsWith("s")) {
+        duration = +animation.slice(0, -1) * 1000;
         return false;
       }
       return true;

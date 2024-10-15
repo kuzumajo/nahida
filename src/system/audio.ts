@@ -1,32 +1,32 @@
-let bgm: HTMLAudioElement | null = null;
-let vocal: HTMLAudioElement | null = null;
+export class AudioSystem {
+  #bgm: HTMLAudioElement | null = null;
+  #vocal: HTMLAudioElement | null = null;
+  #currentBgm = "";
 
-export const audioSystem = {
-  currentBgm: "",
   playBgm(src: string) {
-    if (src === this.currentBgm) {
-      bgm?.play();
+    if (src === this.#currentBgm) {
+      this.#bgm?.play();
       return;
     }
-    bgm?.pause();
-    bgm = new Audio();
-    bgm.src = src;
-    bgm.loop = true;
-    bgm.volume = 0.25;
-    bgm.oncanplay = () => bgm?.play();
-    this.currentBgm = src;
-  },
-  playVocal(src: string) {
-    vocal?.pause();
-    vocal = new Audio();
-    vocal.src = src;
-    vocal.oncanplay = () => vocal?.play();
-  },
-  reset() {
-    bgm?.pause();
-    vocal?.pause();
-    this.currentBgm = "";
-  },
-};
+    this.#bgm?.pause();
+    this.#bgm = new Audio();
+    this.#bgm.src = src;
+    this.#bgm.loop = true;
+    this.#bgm.volume = 0.25;
+    this.#bgm.oncanplay = () => this.#bgm?.play();
+    this.#currentBgm = src;
+  }
 
-export type AudioSystem = typeof audioSystem;
+  playVocal(src: string) {
+    this.#vocal?.pause();
+    this.#vocal = new Audio();
+    this.#vocal.src = src;
+    this.#vocal.oncanplay = () => this.#vocal?.play();
+  }
+
+  reset() {
+    this.#bgm?.pause();
+    this.#vocal?.pause();
+    this.#currentBgm = "";
+  }
+}

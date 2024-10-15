@@ -1,6 +1,6 @@
 # 语法
 
-跳转指令
+## 跳转指令
 
 <!-- prettier-ignore -->
 ```markdown
@@ -12,7 +12,7 @@
 [jump](./choice-2.md)
 ```
 
-控制台指令
+## 控制台指令（`c`, `con`, `console`）
 
 <!-- prettier-ignore -->
 ```markdown
@@ -29,7 +29,7 @@
 ![c](#wait "2000")
 ```
 
-对话文本
+## 对话文本、标题
 
 <!-- prettier-ignore -->
 ```markdown
@@ -50,7 +50,24 @@
 定睛一看，才发现是个少女。
 ```
 
-背景控制
+## 对话配音（`v`, `voice`）
+
+<!-- prettier-ignore -->
+```markdown
+# 纳西妲
+
+![v](./voice-0001.ogg)
+「我们还是分手吧」
+```
+
+## 背景音乐（`m`, `bgm`）
+
+<!-- prettier-ignore -->
+```markdown
+![m](./theme.ogg)
+```
+
+## 背景控制（`b`, `bg`）
 
 `![b <animations>](<image> "<transitions> | <size> | <position>")`
 
@@ -81,20 +98,30 @@
 ![b](./bg.png "/ 20% 50% to-40% to-60%")
 ```
 
-人物
+## 人物（`f`, `fig`, `spine`）
 
-`![f <animations>](<image> "<name> <transitions>")`
+你需要先在 `./src/story/spines.ts` 中定义所有的人物贴图。
+
+`![f <animations>](#name "<transitions>")`
 
 <!-- prettier-ignore -->
 ```markdown
 <!-- 添加人物 nahida，动画淡入，位于正中间，图片缩放 50%，命名为 nahida -->
-![f fade 1/1](./figure.png "nahida 50%")
+![f fade 1/1](#nahida "50%")
 
 <!-- 移动人物，到位于5人站位时的左数第2个，缩放 50% -->
-![f 2/5](./figure.png "nahida 50%")
+![f to-2/5](#nahida "50%")
+
+<!-- 播放 spine 动画 Eye_Close_01（一次），在频道 0（默认） -->
+![f once-Eye_Close_01](#nahida "50%")
+
+<!-- 播放 spine 动画 Idle_01（循环），在频道 1 -->
+![f loop-Idle_01/1](#nahida "50%")
 ```
 
-大框框打字
+频道：用于并行播放多个动画，如果频道相同则会覆盖原来的动画。
+
+## 大框框打字
 
 <!-- prettier-ignore -->
 ```markdown
@@ -107,7 +134,9 @@
 > 这是新的文字后面的文字
 ```
 
-选项，后面必须接一个跳转指令或者代码。
+## 选项
+
+后面必须接一个跳转指令或者代码。
 
 <!-- prettier-ignore -->
 ```markdown

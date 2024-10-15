@@ -1,7 +1,9 @@
+import { Spine } from "pixi-spine";
 import { chapters, entry } from "../story";
-import { AudioSystem, audioSystem } from "../system/audio";
-import { BackgroundSystem, canvasSystem } from "../system/canvas";
-import { consoleSystem, ConsoleSystem } from "../system/console";
+import { AudioSystem } from "../system/audio";
+import { SpineSystem } from "../system/spine";
+import { CanvasSystem } from "../system/canvas";
+import { ConsoleSystem } from "../system/console";
 import {
   idle,
   Skippable,
@@ -35,10 +37,8 @@ export type Command = {
   };
   /** figures */
   f?: {
-    /** source */
-    s: string;
-    /** name */
-    n: string;
+    /** model */
+    m: Spine;
     /** animation */
     a?: string;
     /** transition */
@@ -46,30 +46,29 @@ export type Command = {
   }[];
 };
 
+export const system = {
+  audio: new AudioSystem(),
+  spine: new SpineSystem(),
+  canvas: new CanvasSystem(),
+  console: new ConsoleSystem(),
+};
+
 export type GameContext = {
-  sys: {
-    audio: AudioSystem;
-    canvas: BackgroundSystem;
-    console: ConsoleSystem;
-  };
+  sys: typeof system;
   data: any;
   chapter: string;
-  load(sources: string[]): Promise<string[]>;
+  load(sources: string[], spines: string[]): Promise<[string[], Spine[]]>;
   wait(timeout: number): Skippable;
   exec(command: Command): Skippable;
 };
 
 function createGameContext(chapter: string, data: any): GameContext {
   return {
-    sys: {
-      audio: audioSystem,
-      canvas: canvasSystem,
-      console: consoleSystem,
-    },
+    sys: system,
     data,
     chapter,
-    async load(sources) {
-      return await manuallyLoadResources(sources);
+    async load(sources, spines) {
+      return await manuallyLoadResources(sources, spines);
     },
     wait(timeout) {
       return skippableWait(timeout);
@@ -86,6 +85,13 @@ function createGameContext(chapter: string, data: any): GameContext {
       // change background
       if (c.b)
         skips.push(this.sys.canvas.changeBackground(c.b.s, c.b.a, c.b.t));
+
+      // create / move figures
+      if (c.f) {
+        for (const f of c.f) {
+          skips.push(this.sys.spine.updateSpine(f.m, f.a, f.t));
+        }
+      }
 
       // show text
       if (c.t) {

@@ -1,5 +1,7 @@
+import { Spine } from "pixi-spine";
 import { loadingPage } from "../elements";
 import { wait } from "../utils/animations";
+import { spines as spinesLoaders } from "../story/spines";
 
 const loadingText = document.getElementById("loading-text") as HTMLSpanElement;
 
@@ -48,27 +50,46 @@ export async function preloadResources(tasks: LoadingTask[]) {
   hideLoading();
 }
 
-const loaded = new Map<string, string>();
+const loadedResources = new Map<string, string>();
+const loadedSpines = new Map<string, Spine>();
 
-export async function manuallyLoadResources(resources: string[]) {
-  const notloaded = resources.filter((x) => !loaded.has(x));
+export async function manuallyLoadResources(
+  resources: string[],
+  spines: string[]
+) {
+  const notloadedResources = resources.filter((x) => !loadedResources.has(x));
+  const notloadedSpines = spines.filter((x) => !loadedSpines.has(x));
 
-  if (notloaded.length > 0) {
+  const total = resources.length + spines.length;
+  let finished = total - notloadedResources.length - notloadedSpines.length;
+
+  if (finished < total) {
     showLoading();
-    let finished = resources.length - notloaded.length;
-    updateLoadingText(finished, resources.length);
-    await Promise.all(
-      notloaded.map(async (url) => {
+    updateLoadingText(finished, total);
+    await Promise.all([
+      ...notloadedResources.map(async (url) => {
         const response = await fetch(url);
         const blob = await response.blob();
-        loaded.set(url, URL.createObjectURL(blob));
-        updateLoadingText(++finished, resources.length);
-      })
-    );
+        loadedResources.set(url, URL.createObjectURL(blob));
+        updateLoadingText(++finished, total);
+      }),
+      ...notloadedSpines.map(async (name) => {
+        if (!(name in spinesLoaders))
+          throw new TypeError(
+            `${name} is not found in spines: ${Object.keys(spinesLoaders)}`
+          );
+        const spine = await spinesLoaders[name]();
+        loadedSpines.set(name, spine);
+        updateLoadingText(++finished, total);
+      }),
+    ]);
     hideLoading();
   }
 
-  return resources.map((x) => loaded.get(x)!);
+  return [
+    resources.map((x) => loadedResources.get(x)!),
+    spines.map((x) => loadedSpines.get(x)!),
+  ] as [string[], Spine[]];
 }
 
 // export async function revokeResources(urls: string[]) {

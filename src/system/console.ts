@@ -24,13 +24,13 @@ consolePage.addEventListener("click", () => {
   for (const callback of clickCallbacks) callback();
 });
 
-export const consoleSystem = {
+export class ConsoleSystem {
   show() {
     consolePage.classList.add("show");
-  },
+  }
   hide() {
     consolePage.classList.remove("show");
-  },
+  }
   text(text: string, title: string = "") {
     consoleText.textContent = text;
     consoleTitle.textContent = title;
@@ -42,16 +42,14 @@ export const consoleSystem = {
       return convertToSkippable(consoleText.getAnimations());
     }
     return empty();
-  },
+  }
   idle(show: boolean) {
     if (show) consoleIdle.classList.add("show");
     else consoleIdle.classList.remove("show");
-  },
+  }
   reset() {
     this.text("");
     this.idle(false);
     this.hide();
-  },
-};
-
-export type ConsoleSystem = typeof consoleSystem;
+  }
+}

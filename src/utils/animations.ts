@@ -45,6 +45,7 @@ export function createAnimation(
     },
   };
   animations.add(animation);
+  callback(0);
 
   return {
     finished,
