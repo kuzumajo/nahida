@@ -13,6 +13,11 @@ addEventListener("contextmenu", (e) => e.preventDefault());
   showMenu();
 })();
 
+async function createSpine(res: string) {
+  const animation = await Assets.load(res);
+  return new Spine(animation.spineData);
+}
+
 (async () => {
   const app = new Application({
     width: 1920,
@@ -20,23 +25,33 @@ addEventListener("contextmenu", (e) => e.preventDefault());
     backgroundColor: 0x000000,
     backgroundAlpha: 0.0,
   });
-  const arona = await Assets.load("/assets/spine/arona/arona_spr.skel");
-  const animation = new Spine(arona.spineData);
-  animation.position.set(480, 900);
-  animation.scale.set(0.6);
-  animation.state.setAnimation(0, "16", true);
-  animation.state.setAnimation(1, "Idle_01", true);
-  animation.autoUpdate = true;
-  app.stage.addChild(animation as any);
+  const arona = await createSpine("/assets/spine/arona/arona_spr.skel");
+  arona.position.set(480, 900);
+  arona.scale.set(0.6);
+  arona.state.setAnimation(0, "16", true);
+  arona.state.setAnimation(1, "Idle_01", true);
+  arona.autoUpdate = true;
+  app.stage.addChild(arona as any);
 
-  const plana = await Assets.load("/assets/spine/plana/NP0035_spr.skel");
-  const anime = new Spine(plana.spineData);
-  anime.position.set(1440, 900);
-  anime.scale.set(0.6);
-  anime.state.setAnimation(0, "18", true);
-  anime.state.setAnimation(1, "Idle_01", true);
-  anime.autoUpdate = true;
-  app.stage.addChild(anime as any);
+  setInterval(() => {
+    setTimeout(() => {
+      arona.state.setAnimation(2, "Eye_Close_01", false);
+    }, Math.random() * 1000);
+  }, 5000);
+
+  const plana = await createSpine("/assets/spine/plana/NP0035_spr.skel");
+  plana.position.set(1440, 900);
+  plana.scale.set(0.6);
+  plana.state.setAnimation(0, "18", true);
+  plana.state.setAnimation(1, "Idle_01", true);
+  plana.autoUpdate = true;
+  app.stage.addChild(plana as any);
+
+  setInterval(() => {
+    setTimeout(() => {
+      plana.state.setAnimation(2, "Eye_Close_01", false);
+    }, Math.random() * 1000);
+  }, 5000);
 
   const canvas = app.view as HTMLCanvasElement;
   document.getElementById("spine")?.appendChild(canvas);
