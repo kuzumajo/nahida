@@ -37,17 +37,19 @@ export class SpineSystem {
 
 function parseAnimation(spine: Spine, animation: string, transition: string) {
   let duration = 500;
-  let hasFade = false;
   const animations = [] as { channel: number; name: string; loop: boolean }[];
   const fromPosition = [] as number[];
   const toPosition = [] as number[];
   const fromScale = [] as number[];
   const toScale = [] as number[];
   const skippables = [] as Skippable[];
+  const fade = [] as number[];
 
   for (const name of animation.split(/\s+/).filter(Boolean)) {
-    if (name === "fade") {
-      hasFade = true;
+    if (name === "fade-in") {
+      fade.push(0, 1);
+    } else if (name === "fade-out") {
+      fade.push(1, 0);
     } else if (name.startsWith("once-")) {
       const once = name.slice(5);
       const index = once.lastIndexOf("/");
@@ -116,10 +118,10 @@ function parseAnimation(spine: Spine, animation: string, transition: string) {
     }
   }
 
-  if (hasFade) {
+  if (fade.length === 2) {
     skippables.push(
       createAnimation((x) => {
-        spine.alpha = x;
+        spine.alpha = (fade[1] - fade[0]) * x + fade[0];
       }, duration)
     );
   }
