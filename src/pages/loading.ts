@@ -78,7 +78,7 @@ export async function manuallyLoadResources(
           throw new TypeError(
             `${name} is not found in spines: ${Object.keys(spinesLoaders)}`
           );
-        const spine = await spinesLoaders[name]();
+        const spine = await spinesLoaders[name as keyof typeof spinesLoaders]();
         loadedSpines.set(name, spine);
         updateLoadingText(++finished, total);
       }),
