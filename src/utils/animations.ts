@@ -5,9 +5,7 @@ export type Skippable = {
   finish(): void;
 };
 
-export function convertToSkippable(
-  animations: (Animation | Skippable)[]
-): Skippable {
+export function convertToSkippable(animations: Skippable[]): Skippable {
   return {
     finished: Promise.all(
       animations.map((x) => x.finished)
@@ -90,19 +88,15 @@ export function empty(): Skippable {
 requestAnimationFrame(function animate() {
   requestAnimationFrame(animate);
 
-  const shouldRemove = [] as CurrentAnimation[];
-
   const now = Date.now();
-  for (const animation of animations) {
+  for (const animation of [...animations]) {
     const current = animation.skip
       ? 1
       : Math.min(1, (now - animation.startTime) / animation.duration);
     animation.callback(current);
-    if (current === 1) shouldRemove.push(animation);
-  }
-
-  for (const remove of shouldRemove) {
-    animations.delete(remove);
-    remove.onfinish();
+    if (current === 1) {
+      animations.delete(animation);
+      animation.onfinish();
+    }
   }
 });

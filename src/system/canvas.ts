@@ -91,17 +91,17 @@ function parseAnimation(animation: string, duration: number) {
  * Animate `fade` animations
  */
 export function animateBackground(div: HTMLDivElement, animation: string) {
-  const animates: (Skippable | Animation)[] = [];
+  const animates: Skippable[] = [];
   const [animations, duration, easing] = parseAnimation(animation, 1000);
 
   for (const animation of animations) {
     switch (animation) {
       case "fade":
         animates.push(
-          div.animate(
-            { opacity: [0, 1] },
-            { duration, fill: "forwards", easing }
-          )
+          createAnimation((progress) => {
+            const x = feasing[easing](progress);
+            div.style.opacity = String(x);
+          }, duration)
         );
         break;
       case "conic":
@@ -147,7 +147,6 @@ export function animateBackground(div: HTMLDivElement, animation: string) {
  * Animate `to-bottom`, `to-top` animations
  */
 export function animateImage(div: HTMLDivElement, animation: string) {
-  const animates: Animation[] = [];
   const [animations, duration, easing] = parseAnimation(animation, 60000);
 
   let fromPosition = [];
@@ -209,17 +208,13 @@ export function animateImage(div: HTMLDivElement, animation: string) {
 
   div.style.backgroundSize = size.join(" ") || "cover";
   if (hasAnimation && from !== to) {
-    animates.push(
-      div.animate(
-        { backgroundPosition: [from, to] },
-        { duration, fill: "forwards", easing }
-      )
+    div.animate(
+      { backgroundPosition: [from, to] },
+      { duration, fill: "forwards", easing }
     );
   } else {
     div.style.backgroundPosition = from;
   }
-
-  return animates;
 }
 
 export function setMask(elem: HTMLElement, image: string, size: string) {

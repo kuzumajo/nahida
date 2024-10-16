@@ -1,5 +1,5 @@
 import { consolePage } from "../elements";
-import { convertToSkippable, empty, Skippable } from "../utils/animations";
+import { createAnimation, empty, Skippable } from "../utils/animations";
 
 const consoleTitle = document.getElementById(
   "console-title"
@@ -32,11 +32,10 @@ export class ConsoleSystem {
     consoleText.textContent = text;
     consoleTitle.textContent = title;
     if (text) {
-      consoleText.style.animation = "none";
-      void consoleText.offsetHeight;
-      consoleText.style.animation = "";
-      consoleText.style.animationDuration = `${text.length * TEXT_SPEED}ms`;
-      return convertToSkippable(consoleText.getAnimations());
+      return createAnimation((x) => {
+        consoleText.style.backgroundSize = `${x * 100}% 100%, 3rem 100%`;
+        consoleText.style.backgroundPosition = `0 0, calc((100% + 3rem) * ${x}) 0`;
+      }, text.length * TEXT_SPEED);
     }
     return empty();
   }

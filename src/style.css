@@ -293,16 +293,7 @@ body {
   background-size: 0 100%, 3rem 100%;
   background-position: 0 0, 0 0;
   background-repeat: no-repeat;
-  animation: text-show-up 1s linear forwards;
-
   background-clip: text;
-}
-
-@keyframes text-show-up {
-  to {
-    background-size: 100% 100%, 3rem 100%;
-    background-position: 0 0, calc(100% + 3rem) 0;
-  }
 }
 
 #spine {
