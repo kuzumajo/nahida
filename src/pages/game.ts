@@ -28,6 +28,8 @@ export type Command = {
   m?: string;
   /** voice */
   v?: string;
+  /** Sound Effects */
+  x?: string[];
   /** texts */
   t?: {
     /** text */
@@ -71,6 +73,7 @@ function createGameContext(chapter: string, data: any): GameContext {
       return await manuallyLoadResources(sources, spines);
     },
     wait(timeout) {
+      this.sys.console.hide();
       return skippableWait(timeout);
     },
     exec(c) {
@@ -80,7 +83,9 @@ function createGameContext(chapter: string, data: any): GameContext {
       // switch BGM
       if (c.m) this.sys.audio.playBgm(c.m);
       // play voice
-      if (c.v) this.sys.audio.playVocal(c.v);
+      if (c.v) this.sys.audio.playVoice(c.v);
+      // play sound effects
+      if (c.x) for (const x of c.x) this.sys.audio.playSfx(x);
 
       // change background
       if (c.b)
@@ -139,19 +144,17 @@ export async function startGame(ctx: GameContext) {
           save_time: Date.now(),
         });
         const story = (await chapter.story()).default;
-        ctx.sys.spine.reset();
-        ctx.sys.audio.reset();
-        ctx.sys.canvas.reset();
-        ctx.sys.console.reset();
+        // ctx.sys.spine.reset();
+        // ctx.sys.audio.reset();
+        // ctx.sys.canvas.reset();
+        // ctx.sys.console.reset();
         generator = story(ctx);
       } else {
         break;
       }
     } else {
       const skippable = await next.value;
-      if (skippable) {
-        await waitOrSkip(skippable);
-      }
+      if (skippable) await waitOrSkip(skippable);
     }
   }
 
@@ -167,9 +170,13 @@ export function startNewGame() {
   startGame(createGameContext(entry, {}));
 }
 
+export function startFromChapter(chapter: keyof typeof chapters) {
+  startGame(createGameContext(chapter, {}));
+}
+
 function getChapter(id: string) {
-  if (!chapters[id]) {
+  if (!(id in chapters)) {
     throw new Error(`Cannot find chapter ${id}`);
   }
-  return chapters[id];
+  return chapters[id as keyof typeof chapters];
 }

@@ -1,5 +1,5 @@
 import { consolePage } from "../elements";
-import { convertToSkippable, empty } from "../utils/animations";
+import { convertToSkippable, empty, Skippable } from "../utils/animations";
 
 const consoleTitle = document.getElementById(
   "console-title"
@@ -7,22 +7,19 @@ const consoleTitle = document.getElementById(
 const consoleText = document.getElementById("console-text") as HTMLSpanElement;
 const consoleIdle = document.getElementById("console-idle") as HTMLDivElement;
 
-const clickCallbacks = new Set<() => void>();
+const skippables = new Set<Skippable>();
 
-export function registerConsoleClicked() {
-  let resolve: () => void;
-  const callback = () => {
-    clickCallbacks.delete(callback);
-    resolve && resolve();
-  };
-  const clicked = new Promise<void>((resolve_) => (resolve = resolve_));
-  clickCallbacks.add(callback);
-  return { clicked, abort: () => clickCallbacks.delete(callback) };
+export function registerSkippable(skippable: Skippable) {
+  skippables.add(skippable);
+  skippable.finished.then(() => skippables.delete(skippable));
 }
 
 consolePage.addEventListener("click", () => {
-  for (const callback of clickCallbacks) callback();
+  const skips = [...skippables];
+  for (const skip of skips) skip.finish();
 });
+
+const TEXT_SPEED = 30;
 
 export class ConsoleSystem {
   show() {
@@ -38,7 +35,7 @@ export class ConsoleSystem {
       consoleText.style.animation = "none";
       void consoleText.offsetHeight;
       consoleText.style.animation = "";
-      consoleText.style.animationDuration = `${text.length * 30}ms`;
+      consoleText.style.animationDuration = `${text.length * TEXT_SPEED}ms`;
       return convertToSkippable(consoleText.getAnimations());
     }
     return empty();

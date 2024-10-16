@@ -1,4 +1,4 @@
-import { registerConsoleClicked } from "../system/console";
+import { registerSkippable } from "../system/console";
 
 export type Skippable = {
   finished: Promise<void>;
@@ -56,14 +56,8 @@ export function createAnimation(
 }
 
 export async function waitOrSkip(skippable: Skippable) {
-  const { clicked, abort } = registerConsoleClicked();
-
-  try {
-    await Promise.race([skippable.finished, clicked]);
-  } finally {
-    abort();
-    skippable.finish();
-  }
+  registerSkippable(skippable);
+  await skippable.finished;
 }
 
 export function wait(timeout: number) {

@@ -62,9 +62,20 @@
 
 ## 背景音乐（`m`, `bgm`）
 
+会直接替换当前的 BGM。
+
 <!-- prettier-ignore -->
 ```markdown
 ![m](./theme.ogg)
+```
+
+## 音效（`x`, `sfx`）
+
+直接播放。
+
+<!-- prettier-ignore -->
+```markdown
+![x](./explosion.ogg)
 ```
 
 ## 背景控制（`b`, `bg`）

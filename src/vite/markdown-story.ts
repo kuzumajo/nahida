@@ -112,6 +112,11 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
     if (ctx.command.v) throw new TypeError("Too many vocal binded to text");
     ctx.command.v = ctx.resource(src);
   }
+  // Sound Effects
+  else if (["x", "sfx"].includes(name)) {
+    if (!ctx.command.x) ctx.command.x = [];
+    ctx.command.x.push(ctx.resource(src));
+  }
   // Background
   else if (["b", "bgm"].includes(name)) {
     if (ctx.command.b) throw new TypeError("Too many backgrounds in paragraph");
