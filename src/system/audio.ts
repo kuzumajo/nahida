@@ -9,21 +9,24 @@ export class AudioSystem {
   #voice: HTMLAudioElement | null = null;
   #currentBgm = "";
 
-  async playBgm(src: string) {
-    if (src === this.#currentBgm) {
-      this.#bgm?.play();
-      return;
-    }
-    // if current bgm is playing
+  async pauseBgm() {
     if (this.#bgm && !this.#bgm.paused) {
       const audio = this.#bgm;
       const animation = createAnimation(
-        (x) => (audio.volume = BGM_VOLUME * x),
+        (x) => (audio.volume = BGM_VOLUME * (1 - x)),
         500
       );
       await animation.finished;
       audio.pause();
     }
+  }
+
+  async playBgm(src: string) {
+    if (src === this.#currentBgm) {
+      this.#bgm?.play();
+      return;
+    }
+    await this.pauseBgm();
     const audio = new Audio();
     audio.src = src;
     audio.loop = true;
