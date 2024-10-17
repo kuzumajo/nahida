@@ -142,19 +142,40 @@ body {
 }
 
 .menu-item {
+  all: unset;
   background: none;
   outline: none;
   border: none;
-  width: 8rem;
+  width: 6rem;
   text-align: right;
   font-size: 1rem;
-  margin-bottom: 0.25rem;
   cursor: pointer;
-  transition: transform 0.5s;
+  position: relative;
+  transition: transform 0.5s, text-shadow 0.5s;
 }
 
-.menu-item:hover {
+.menu-item:not(:disabled):hover {
+  text-shadow: 0 0 5px white;
   transform: translateX(-0.5rem);
+}
+
+.menu-item::after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  left: 100%;
+  opacity: 0;
+  top: 35%;
+  border-top: 0.25rem solid transparent;
+  border-right: 0.4rem solid white;
+  border-bottom: 0.25rem solid transparent;
+  transition: opacity 0.5s, left 0.5s;
+}
+
+.menu-item:not(:disabled):hover::after {
+  opacity: 1;
+  left: 104%;
 }
 
 .menu-item:disabled {
