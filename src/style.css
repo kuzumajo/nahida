@@ -339,6 +339,14 @@ body {
   cursor: pointer;
   transition: transform 0.5s;
   color: #242424;
+
+  --color-1: #7ac3ff;
+  --color-2: #8ccdff;
+  --color-3: #a6d3f4;
+  --offset-x: 0.4rem;
+  --offset-y: 0.8rem;
+  --width: 2rem;
+  --height: calc(var(--width) * 1.7320508075688772);
 }
 .console-selection-option > span {
   position: relative;
@@ -348,13 +356,18 @@ body {
   display: block;
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to right,
-    rgb(141, 199, 233),
-    #fff 20%,
-    #fff 80%,
-    rgb(141, 199, 233)
-  );
+  background: linear-gradient(60deg, #fff4, #fff 30%, #fff 70%, #fff4),
+    linear-gradient(240deg, transparent 75%, var(--color-1) 75%) var(--offset-x)
+      var(--offset-y) / var(--width) var(--height),
+    linear-gradient(120deg, transparent 75%, var(--color-1) 75%) var(--offset-x)
+      var(--offset-y) / var(--width) var(--height),
+    linear-gradient(240deg, transparent 75%, var(--color-2) 75%)
+      calc(var(--width) / 2 + var(--offset-x))
+      calc(var(--height) / 2 + var(--offset-y)) / var(--width) var(--height),
+    linear-gradient(120deg, transparent 75%, var(--color-2) 75%)
+      calc(var(--width) / 2 + var(--offset-x))
+      calc(var(--height) / 2 + var(--offset-y)) / var(--width) var(--height),
+    var(--color-3);
   border: 0.1rem solid #fff;
   transform: skewX(-10deg);
   border-radius: 0.5rem;
@@ -367,5 +380,14 @@ body {
 
 .console-selection-option.active,
 .console-selection-option:active {
-  transform: scale(0.95);
+  animation: bounce-scale 0.3s forwards;
+}
+
+@keyframes bounce-scale {
+  50% {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1.02);
+  }
 }
