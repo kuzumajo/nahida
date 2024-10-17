@@ -343,6 +343,7 @@ body {
   display: inline-flex;
   flex-direction: column;
   gap: 1rem;
+  transition: opacity 0.2s;
 }
 
 #console-selection.hide {
