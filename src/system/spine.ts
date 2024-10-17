@@ -1,36 +1,27 @@
 import { Spine } from "pixi-spine";
-import { Application } from "pixi.js";
 import {
   convertToSkippable,
   createAnimation,
   Skippable,
 } from "../utils/animations";
+import { app } from "../utils/pixi";
 
 export class SpineSystem {
-  #app: Application<HTMLCanvasElement>;
-
   constructor() {
-    this.#app = new Application({
-      width: 1920,
-      height: 1080,
-      backgroundColor: 0x000000,
-      backgroundAlpha: 0,
-    });
-
-    document.getElementById("spine")!.appendChild(this.#app.view);
+    document.getElementById("spine")!.appendChild(app.view);
   }
 
   updateSpine(spine: Spine, animation = "", transition = "") {
-    if (!this.#app.stage.children.includes(spine)) {
-      this.#app.stage.addChild(spine);
+    if (!app.stage.children.includes(spine)) {
+      app.stage.addChild(spine);
     }
     return parseAnimation(spine, animation, transition);
   }
 
   reset() {
-    const children = [...this.#app.stage.children];
+    const children = [...app.stage.children];
     for (const child of children) {
-      this.#app.stage.removeChild(child);
+      app.stage.removeChild(child);
     }
   }
 }

@@ -10,9 +10,18 @@ try {
   if (plain) saves = JSON.parse(plain);
 } catch {}
 
+function writeToStorage() {
+  localStorage.setItem(`game-saves-v0`, JSON.stringify(saves));
+}
+
 export function saveSave(id: string, save: GameSave) {
   saves[id] = save;
-  localStorage.setItem(`game-saves-v0`, JSON.stringify(saves));
+  writeToStorage();
+}
+
+export function deleteSave(id: string) {
+  delete saves[id];
+  writeToStorage();
 }
 
 export function loadSave(id: string) {

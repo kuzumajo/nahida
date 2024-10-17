@@ -4,6 +4,8 @@ import {
   Heading,
   Image,
   Link,
+  List,
+  ListItem,
   Paragraph,
   RootContent,
   ThematicBreak,
@@ -29,6 +31,11 @@ function ss(x: any): string {
         "}";
 }
 
+type Selection = {
+  text: string;
+  action: string[];
+};
+
 function createParseContext() {
   const codes = [] as string[];
   const spines = [] as string[];
@@ -38,6 +45,7 @@ function createParseContext() {
   return {
     title: "",
     command: {} as Command,
+    selections: [] as Selection[],
 
     include(source: string) {
       const index = imports.indexOf(source);
@@ -153,7 +161,7 @@ function parseStoryLink(ctx: ParseContext, link: Link) {
   const src = link.url;
   if (alt === "next") {
     if (!src.startsWith("#")) throw new TypeError("Next chapter must use hash");
-    ctx.code(`return ${JSON.stringify(src.slice(1))};`);
+    ctx.code(`return ${s(src.slice(1))};`);
   } else if (alt === "jump") {
     const jump = ctx.include(src);
     ctx.code(`yield *${jump}(ctx);`);
@@ -200,6 +208,50 @@ function parseStoryThematicBreak(
 ) {
   ctx.title = "";
 }
+function parseStoryListItem(ctx: ParseContext, listItem: ListItem) {
+  if (listItem.children.length !== 1)
+    throw new Error("ListItem must contain exactly one paragraph");
+  const para = listItem.children[0];
+  if (para.type !== "paragraph")
+    throw new Error("ListItem must contain exactly one paragraph");
+
+  const selection = <Selection>{ text: "", action: [] };
+  ctx.selections.push(selection);
+
+  for (const child of para.children) {
+    if (child.type === "text") {
+      selection.text += child.value;
+    } else if (child.type === "link") {
+      if (child.url.startsWith("#")) {
+        selection.action.push(`return ${s(child.url.slice(1))}`);
+      } else {
+        selection.action.push(`yield *${ctx.include(child.url)}(ctx);`);
+      }
+    } else if (child.type === "inlineCode") {
+      selection.action.push(child.value);
+    }
+  }
+
+  selection.text = selection.text.trim();
+}
+function parseStoryList(ctx: ParseContext, list: List) {
+  ctx.selections = [];
+  for (const child of list.children) {
+    parseStoryListItem(ctx, child);
+  }
+  ctx.yield(`ctx.select([${ctx.selections.map((x) => s(x.text)).join(", ")}])`);
+  if (ctx.selections.some((x) => x.action.length > 0)) {
+    ctx.code(`switch (ctx.selection) {`);
+    ctx.selections.forEach((selection, i) => {
+      ctx.code(`case ${i}: {`);
+      for (const action of selection.action) {
+        ctx.code(action);
+      }
+      ctx.code("break; }");
+    });
+    ctx.code(`}`);
+  }
+}
 function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
   for (const content of contents) {
     if (content.type === "paragraph") {
@@ -212,6 +264,10 @@ function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
     }
     if (content.type === "thematicBreak") {
       parseStoryThematicBreak(ctx, content);
+      continue;
+    }
+    if (content.type === "list" && !content.ordered) {
+      parseStoryList(ctx, content);
       continue;
     }
   }

@@ -1,4 +1,5 @@
 import { registerSkippable } from "../system/console";
+import { app } from "./pixi";
 
 export type Skippable = {
   finished: Promise<void>;
@@ -85,9 +86,7 @@ export function empty(): Skippable {
   return { finished: Promise.resolve(), finish() {} };
 }
 
-requestAnimationFrame(function animate() {
-  requestAnimationFrame(animate);
-
+app.ticker.add(() => {
   const now = Date.now();
   for (const animation of [...animations]) {
     const current = animation.skip

@@ -10,7 +10,7 @@ import {
   skippableWait,
   waitOrSkip,
 } from "../utils/animations";
-import { GameSave, saveSave } from "../utils/saves";
+import { deleteSave, GameSave, saveSave } from "../utils/saves";
 import { manuallyLoadResources } from "./loading";
 import { showMenu } from "./menu";
 
@@ -59,9 +59,11 @@ export type GameContext = {
   sys: typeof system;
   data: any;
   chapter: string;
+  selection: number;
   load(sources: string[], spines: string[]): Promise<[string[], Spine[]]>;
   wait(timeout: number): Skippable;
   exec(command: Command): Skippable;
+  select(selections: string[]): Promise<void>;
 };
 
 function createGameContext(chapter: string, data: any): GameContext {
@@ -69,12 +71,16 @@ function createGameContext(chapter: string, data: any): GameContext {
     sys: system,
     data,
     chapter,
+    selection: 0,
     async load(sources, spines) {
       return await manuallyLoadResources(sources, spines);
     },
     wait(timeout) {
       this.sys.console.hide();
       return skippableWait(timeout);
+    },
+    async select(selections: string[]) {
+      this.selection = await this.sys.console.select(selections);
     },
     exec(c) {
       const skips = [] as Skippable[];
@@ -144,9 +150,9 @@ export async function startGame(ctx: GameContext) {
           save_time: Date.now(),
         });
         const story = (await chapter.story()).default;
-        // ctx.sys.spine.reset();
+        ctx.sys.spine.reset();
+        ctx.sys.canvas.reset();
         // ctx.sys.audio.reset();
-        // ctx.sys.canvas.reset();
         // ctx.sys.console.reset();
         generator = story(ctx);
       } else {
@@ -159,6 +165,7 @@ export async function startGame(ctx: GameContext) {
   }
 
   // the game is over!
+  deleteSave("auto");
   showMenu();
 }
 
