@@ -1,6 +1,7 @@
 import { Plugin } from "vite";
 
 import {
+  Code,
   Heading,
   Image,
   Link,
@@ -16,19 +17,17 @@ import { Command } from "../pages/game";
 
 const s = JSON.stringify;
 function ss(x: any): string {
-  return Array.isArray(x)
+  return typeof x === "string"
+    ? x.startsWith("\0")
+      ? x.slice(1)
+      : s(x)
+    : Array.isArray(x)
     ? "[" + x.map((x) => ss(x)).join(",") + "]"
     : "{" +
-        Object.entries(x)
-          .map(([k, v]) =>
-            typeof v === "string"
-              ? v.startsWith("\0")
-                ? `${k}:${v.slice(1)}`
-                : `${k}:${s(v)}`
-              : `${k}:${ss(v)}`
-          )
-          .join(",") +
-        "}";
+      Object.entries(x)
+        .map(([k, v]) => `${k}:${ss(v)}`)
+        .join(",") +
+      "}";
 }
 
 type Selection = {
@@ -113,7 +112,11 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
   // BGM
   else if (["m", "bgm"].includes(name)) {
     if (ctx.command.m) throw new TypeError("Too many BGM in paragraph");
-    ctx.command.m = ctx.resource(src);
+    if (src === "#mute") {
+      ctx.code(`ctx.sys.audio.pauseBgm();`);
+    } else {
+      ctx.command.m = ctx.resource(src);
+    }
   }
   // Voice
   else if (["v", "voice"].includes(name)) {
@@ -160,21 +163,26 @@ function parseStoryLink(ctx: ParseContext, link: Link) {
     .join("");
   const src = link.url;
   if (alt === "next") {
-    if (!src.startsWith("#")) throw new TypeError("Next chapter must use hash");
-    ctx.code(`return ${s(src.slice(1))};`);
+    if (src.startsWith("#")) {
+      ctx.code(`return ${s(src.slice(1))};`);
+    } else {
+      ctx.code(`return yield *${ctx.include(src)}(ctx);`);
+    }
   } else if (alt === "jump") {
-    const jump = ctx.include(src);
-    ctx.code(`yield *${jump}(ctx);`);
+    if (src.startsWith("#"))
+      throw new TypeError("You cannot jump to another chapter");
+    ctx.code(`yield *${ctx.include(src)}(ctx);`);
   } else {
     throw new Error(`Unknown jump command: ${alt}`);
   }
 }
 function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
-  let text = "";
+  let tmp = "";
+  const text = [] as string[];
   ctx.command = {};
   for (const child of paragraph.children) {
     if (child.type === "text") {
-      text += child.value;
+      tmp += child.value;
       continue;
     }
     if (child.type === "image") {
@@ -185,10 +193,23 @@ function parseStoryParagraph(ctx: ParseContext, paragraph: Paragraph) {
       parseStoryLink(ctx, child);
       continue;
     }
+    if (child.type === "inlineCode") {
+      if (tmp) text.push(tmp);
+      text.push(`\0${child.value}`);
+      tmp = "";
+      continue;
+    }
   }
-  text = text.trim();
-  if (text) {
-    ctx.command.t = { t: text };
+  if (tmp) text.push(tmp);
+  if (text.length === 1 && !text[0].startsWith("\0")) {
+    if (text[0].trim()) {
+      ctx.command.t = { t: text[0].trim() };
+      if (ctx.title) ctx.command.t.l = ctx.title;
+    }
+  } else if (text.length > 0) {
+    ctx.command.t = {
+      t: "\0(" + text.map((x) => ss(x)).join("+") + ").trim()",
+    };
     if (ctx.title) ctx.command.t.l = ctx.title;
   }
   if (s(ctx.command) !== "{}") {
@@ -222,9 +243,21 @@ function parseStoryListItem(ctx: ParseContext, listItem: ListItem) {
     if (child.type === "text") {
       selection.text += child.value;
     } else if (child.type === "link") {
-      if (child.url.startsWith("#")) {
-        selection.action.push(`return ${s(child.url.slice(1))}`);
-      } else {
+      const alt = child.children
+        .filter((x) => x.type === "text")
+        .map((x) => x.value)
+        .join("");
+      if (alt === "next") {
+        if (child.url.startsWith("#")) {
+          selection.action.push(`return ${s(child.url.slice(1))}`);
+        } else {
+          selection.action.push(
+            `return yield *${ctx.include(child.url)}(ctx);`
+          );
+        }
+      } else if (alt === "jump") {
+        if (child.url.startsWith("#"))
+          throw new TypeError("Cannot jump to another chapter");
         selection.action.push(`yield *${ctx.include(child.url)}(ctx);`);
       }
     } else if (child.type === "inlineCode") {
@@ -252,6 +285,9 @@ function parseStoryList(ctx: ParseContext, list: List) {
     ctx.code(`}`);
   }
 }
+function parseStoryCode(ctx: ParseContext, code: Code) {
+  ctx.code(code.value);
+}
 function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
   for (const content of contents) {
     if (content.type === "paragraph") {
@@ -268,6 +304,10 @@ function parseStoryContents(ctx: ParseContext, contents: RootContent[]) {
     }
     if (content.type === "list" && !content.ordered) {
       parseStoryList(ctx, content);
+      continue;
+    }
+    if (content.type === "code") {
+      parseStoryCode(ctx, content);
       continue;
     }
   }

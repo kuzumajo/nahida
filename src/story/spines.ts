@@ -6,9 +6,7 @@ export const spines = {
     spine.position.set(0, 1080 * 0.9);
     spine.scale.set(0.7);
     spine.autoUpdate = true;
-    // idle animations
     spine.state.setAnimation(1, "Idle_01", true);
-    // blink eye
     setInterval(() => {
       setTimeout(() => {
         spine.state.setAnimation(2, "Eye_Close_01", false);
@@ -19,14 +17,12 @@ export const spines = {
     spine.position.set(0, 1080 * 0.9);
     spine.scale.set(0.7);
     spine.autoUpdate = true;
-    // idle animations
     spine.state.setAnimation(1, "Idle_01", true);
-    // blink eye
-    setInterval(() => {
-      setTimeout(() => {
-        spine.state.setAnimation(2, "Eye_Close_01", false);
-      }, Math.random() * 1000);
-    }, 5000 + Math.random() * 1000);
+    // setInterval(() => {
+    //   setTimeout(() => {
+    //     spine.state.setAnimation(2, "Eye_Close_01", false);
+    //   }, Math.random() * 1000);
+    // }, 5000 + Math.random() * 1000);
   }),
 } satisfies Record<string, () => Promise<Spine>>;
 

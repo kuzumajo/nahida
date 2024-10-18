@@ -11,7 +11,7 @@ async function main() {
 }
 
 if (import.meta.env.DEV) {
-  startFromChapter("chapter-1");
+  startFromChapter("chapter-2");
   // main()
 }
 // production

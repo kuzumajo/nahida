@@ -51,7 +51,7 @@ export class ConsoleSystem {
       // remove all old children
       while (consoleSelection.firstChild)
         consoleSelection.removeChild(consoleSelection.firstChild);
-      consoleSelection.classList.remove("hide");
+      consoleSelection.parentElement!.classList.remove("hide");
       options.forEach((option, i) => {
         const button = document.createElement("button");
         const span = document.createElement("span");
@@ -60,7 +60,7 @@ export class ConsoleSystem {
         button.classList.add("console-selection-option");
         button.addEventListener("click", () => {
           button.classList.add("active");
-          consoleSelection.classList.add("hide");
+          consoleSelection.parentElement!.classList.add("hide");
           setTimeout(() => {
             resolve(i);
           }, 200);

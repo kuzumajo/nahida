@@ -309,6 +309,7 @@ body {
 
 #console-text {
   color: transparent;
+  white-space: pre-wrap;
   background: linear-gradient(white 0 0),
     linear-gradient(to right, white, transparent);
   background-size: 0 100%, 3rem 100%;
@@ -337,16 +338,20 @@ body {
   justify-content: center;
 }
 
+.console-selection.hide {
+  pointer-events: none;
+}
+
 #console-selection {
   width: 60%;
   text-align: center;
   display: inline-flex;
   flex-direction: column;
   gap: 1rem;
-  transition: opacity 0.2s;
+  transition: opacity 0.5s;
 }
 
-#console-selection.hide {
+.console-selection.hide > #console-selection {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.5s;
@@ -357,7 +362,7 @@ body {
   all: unset;
   position: relative;
   font-weight: bold;
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   cursor: pointer;
   transition: transform 0.5s;
   color: #242424;

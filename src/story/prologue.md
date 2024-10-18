@@ -147,7 +147,9 @@
 ![b fade 5s](#000)
 
 ![c](#wait "2000")
-[next](#chapter-1)
+
+- 第一章 [next](#chapter-1)
+- 第二章 [next](#chapter-2)
 
 [theme]: ../assets/audio/bgm/Theme_34.ogg
 [nexon]: ../assets/images/BG_CS_PR_13.png
