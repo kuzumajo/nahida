@@ -418,3 +418,24 @@ body {
     transform: scale(1.02);
   }
 }
+
+#background {
+  position: relative;
+  --camera: 0%;
+}
+
+#background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    #000 var(--camera),
+    transparent var(--camera),
+    transparent calc(100% - var(--camera)),
+    #000 calc(100% - var(--camera))
+  );
+  width: 100%;
+  height: 100%;
+  transition: background 1s;
+}

@@ -1,5 +1,5 @@
 import { startFromChapter } from "./pages/game";
-import { preloadResources } from "./pages/loading";
+import { hideLoading, preloadResources } from "./pages/loading";
 import { showMenu } from "./pages/menu";
 import "./style.css";
 
@@ -11,8 +11,8 @@ async function main() {
 }
 
 if (import.meta.env.DEV) {
-  startFromChapter("chapter-3");
-  // main()
+  hideLoading();
+  startFromChapter("prologue");
 }
 // production
 else {

@@ -2,8 +2,11 @@ import { backgroundPage } from "../elements";
 import {
   convertToSkippable,
   createAnimation,
+  empty,
   Skippable,
 } from "../utils/animations";
+
+const ANAMORPHIC = 12.80799628079963;
 
 export class CanvasSystem {
   changeBackground(
@@ -34,6 +37,7 @@ export class CanvasSystem {
     const video = document.createElement("video");
     div.style.position = "absolute";
     div.style.inset = "0";
+    div.style.backgroundColor = "#000";
     video.style.width = "100%";
     video.style.height = "100%";
     video.style.objectFit = "contain";
@@ -65,10 +69,33 @@ export class CanvasSystem {
     return { finished, finish };
   }
 
+  #setAspect(aspect: number) {
+    backgroundPage.style.setProperty("--camera", `${aspect}%`);
+  }
+
+  #aspect = 0;
+  aspect(target: number) {
+    const origin = this.#aspect;
+    this.#aspect = target;
+    return createAnimation((p) => {
+      const x = feasing["ease-out"](p);
+      this.#setAspect((target - origin) * x + origin);
+    }, 1000);
+  }
+
+  anamorphic() {
+    return this.aspect(ANAMORPHIC);
+  }
+
+  normal() {
+    return this.aspect(0);
+  }
+
   reset() {
-    while (backgroundPage.firstChild) {
+    this.#aspect = 0;
+    this.#setAspect(0);
+    while (backgroundPage.firstChild)
       backgroundPage.removeChild(backgroundPage.firstChild);
-    }
   }
 }
 

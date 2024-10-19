@@ -107,6 +107,10 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       ctx.code(`ctx.sys.console.hide();`);
     } else if (src === "#noskip") {
       ctx.command.n = 1;
+    } else if (src === "#anamorphic") {
+      ctx.code(`ctx.sys.canvas.anamorphic();`);
+    } else if (src === "#normal") {
+      ctx.code(`ctx.sys.canvas.normal();`);
     } else {
       throw new Error(`Unknown command: ${src}`);
     }

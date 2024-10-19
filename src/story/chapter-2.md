@@ -66,5 +66,7 @@
 
 「好厉害！」
 
+[next](#chapter-3)
+
 [bg]: ../assets/images/BG_ReceptionRoom.png
 [bgm]: ../assets/audio/bgm/Theme_06.ogg
