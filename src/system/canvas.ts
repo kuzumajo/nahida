@@ -6,16 +6,14 @@ import {
 } from "../utils/animations";
 
 export class CanvasSystem {
-  #stack: HTMLDivElement[] = [];
-
   changeBackground(
     src: string,
     animates: string = "",
     transitions: string = ""
   ) {
-    while (this.#stack.length > 1) {
-      this.#stack.shift()!.remove();
-    }
+    // remove invisible backgrounds
+    while (backgroundPage.childNodes.length > 1)
+      backgroundPage.removeChild(backgroundPage.firstChild!);
 
     const div = document.createElement("div");
     div.style.position = "absolute";
@@ -28,13 +26,48 @@ export class CanvasSystem {
     }
     animateImage(div, transitions);
     const skippable = convertToSkippable(animateBackground(div, animates));
-    this.#stack.push(div);
     return skippable;
   }
 
+  playVideo(src: string): Skippable {
+    const div = document.createElement("div");
+    const video = document.createElement("video");
+    div.style.position = "absolute";
+    div.style.inset = "0";
+    video.style.width = "100%";
+    video.style.height = "100%";
+    video.style.objectFit = "contain";
+
+    let resolve: () => void;
+    const finished = new Promise<void>((resolve_) => (resolve = resolve_));
+    const finish = () => {
+      if (!video.paused) {
+        createAnimation((x) => {
+          video.volume = 1 - x;
+        }, 500);
+      }
+      resolve && resolve();
+    };
+
+    video.src = src;
+    video.controls = false;
+    video.autoplay = true;
+    video.onended = () => finish();
+    video.onerror = (e) => {
+      console.error(e);
+      alert("加载视频错误，请使用更加先进的浏览器呜呜呜");
+      finish();
+    };
+
+    div.appendChild(video);
+    backgroundPage.appendChild(div);
+
+    return { finished, finish };
+  }
+
   reset() {
-    while (this.#stack.length > 0) {
-      this.#stack.shift()!.remove();
+    while (backgroundPage.firstChild) {
+      backgroundPage.removeChild(backgroundPage.firstChild);
     }
   }
 }

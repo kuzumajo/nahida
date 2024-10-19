@@ -139,6 +139,9 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
     ctx.command.b = { s: image };
     if (animates) ctx.command.b.a = animates;
     if (transitions) ctx.command.b.t = transitions;
+  } else if (["o", "video"].includes(name)) {
+    if (ctx.command.o) throw new TypeError("Too many video in paragraph");
+    ctx.command.o = ctx.resource(src);
   }
   // Spine
   else if (["f", "fig", "spine"].includes(name)) {

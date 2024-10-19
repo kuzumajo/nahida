@@ -150,6 +150,7 @@
 
 - 第一章 [next](#chapter-1)
 - 第二章 [next](#chapter-2)
+- 第三章 [next](#chapter-3)
 
 [theme]: ../assets/audio/bgm/Theme_34.ogg
 [nexon]: ../assets/images/BG_CS_PR_13.png

@@ -24,6 +24,8 @@ export type Command = {
     /** transitions */
     t?: string;
   };
+  /** video */
+  o?: string;
   /** BGM */
   m?: string;
   /** voice */
@@ -102,6 +104,8 @@ function createGameContext(chapter: string, data: any): GameContext {
       // change background
       if (c.b)
         skips.push(this.sys.canvas.changeBackground(c.b.s, c.b.a, c.b.t));
+
+      if (c.o) skips.push(this.sys.canvas.playVideo(c.o));
 
       // create / move figures
       if (c.f) {

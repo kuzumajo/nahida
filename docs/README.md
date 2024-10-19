@@ -116,6 +116,17 @@
 ![b](./bg.png "/ 20% 50% to-40% to-60%")
 ```
 
+## 播放视频（`o`, `video`）
+
+<!-- prettier-ignore -->
+```markdown
+![o](./video/opening.mp4)
+
+<!-- 有时候可以搭配 noskip -->
+![c](#noskip)
+![o](./video/opening.mp4)
+```
+
 ## 人物（`f`, `fig`, `spine`）
 
 你需要先在 `./src/story/spines.ts` 中定义所有的人物贴图。
