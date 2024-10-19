@@ -105,6 +105,8 @@ function parseStoryImage(ctx: ParseContext, image: Image) {
       ctx.code(`ctx.sys.console.show();`);
     } else if (src === "#hide") {
       ctx.code(`ctx.sys.console.hide();`);
+    } else if (src === "#noskip") {
+      ctx.command.n = 1;
     } else {
       throw new Error(`Unknown command: ${src}`);
     }

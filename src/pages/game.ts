@@ -46,6 +46,8 @@ export type Command = {
     /** transition */
     t?: string;
   }[];
+  /** noskip */
+  n?: 1;
 };
 
 export const system = {
@@ -85,6 +87,10 @@ function createGameContext(chapter: string, data: any): GameContext {
     exec(c) {
       const skips = [] as Skippable[];
       let skip: Skippable | null = null;
+      let noskip = false;
+
+      // set noskip
+      if (c.n) noskip = true;
 
       // switch BGM
       if (c.m) this.sys.audio.playBgm(c.m);
@@ -122,6 +128,7 @@ function createGameContext(chapter: string, data: any): GameContext {
           ...skips.map((x) => x.finished),
         ]) as Promise<unknown> as Promise<void>,
         finish() {
+          if (noskip) return;
           if (skip) skip.finish();
           else skips.forEach((s) => s.finish());
         },
