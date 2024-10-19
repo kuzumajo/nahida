@@ -2,7 +2,6 @@ import { backgroundPage } from "../elements";
 import {
   convertToSkippable,
   createAnimation,
-  empty,
   Skippable,
 } from "../utils/animations";
 
